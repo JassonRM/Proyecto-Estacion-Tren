@@ -1,0 +1,16 @@
+["Vagon(id = 100, capacidad = 20)"] #VagonesLibres
+
+Ruta TEC-Alajuela
+Llegadas
+07:00
+11:00
+Salidas
+9:00
+13:00
+Ruta TEC-Cartago
+Llegadas
+06:30
+08:30
+Salidas
+15:00
+17:00

@@ -6,6 +6,7 @@
 import sys
 import os
 import pygame
+import random
 
 #Funcion: cargarImagen
 #Entrada: nombre
@@ -30,10 +31,19 @@ class Tren:
         self.id = id
         self.ruta = ruta
         self.hora = hora
-        self.maquina = None
-        self.head = None
-        self.tail = None
-        self.carga = 0
+        if ruta.find("TEC") == 0:
+            self.enEstacion = True
+            self.maquina = None
+            self.head = None
+            self.tail = None
+            self.carga = 0
+            self.demanda = None
+        else:
+            self.enEstacion = False
+            self.demanda = random.randrange(5, 75)
+            #Codigo para optimizar la maquina y los vagones aplica aqui tambien
+            self.maquina = Maquina()
+
 
     def asignarMaquina(self, id):
         for maquina in maquinasLibres:
@@ -97,7 +107,7 @@ class Tren:
             print("Capacidad de la máquina alcanzada")
 
     def engancharFinal(self, id):
-        
+
     def quitarVagon(self, pos):
 
     def salir(self):

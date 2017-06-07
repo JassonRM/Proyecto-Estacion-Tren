@@ -1,16 +1,12 @@
-["Vagon(id = 100, capacidad = 20)"] #VagonesLibres
-
+[Vagon(id = 100, capacidad = 20), Vagon(id = 101, capacidad = 15), Vagon(id = 102, capacidad = 10), Vagon(id = 103, capacidad = 30)] #VagonesLibres
+[Maquina(id=10, capacidad = 5)] #MaquinasLibres
 Ruta TEC-Alajuela
-Llegadas
 07:00
 11:00
-Salidas
 9:00
 13:00
 Ruta TEC-Cartago
-Llegadas
 06:30
 08:30
-Salidas
 15:00
 17:00

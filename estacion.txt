@@ -1,5 +1,7 @@
 [Vagon(id = 100, capacidad = 20), Vagon(id = 101, capacidad = 15), Vagon(id = 102, capacidad = 10), Vagon(id = 103, capacidad = 30)] #VagonesLibres
 [Maquina(id=10, capacidad = 5)] #MaquinasLibres
+[Vagon(id = 150, capacidad = 20), Vagon(id = 151, capacidad = 15), Vagon(id = 152, capacidad = 10), Vagon(id = 153, capacidad = 30)] #VagonesLibres
+[Maquina(id=20, capacidad = 6)] #MaquinasLibres
 Ruta TEC-Alajuela
 07:00
 11:00

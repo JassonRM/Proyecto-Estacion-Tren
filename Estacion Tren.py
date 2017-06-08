@@ -81,6 +81,10 @@ class Tren:
             self.enEstacion = False
             self.optimizar(self.demanda)
 
+    #Metodo: optimizar
+    #Entrada: demanda
+    #Salida: asigna los vagones y la maquina de acuerdo a la demanda existente
+    #Restricciones: demanda es un entero positivo
     def optimizar(self, demanda):
         if self.enEstacion:
             listaVagones = vagonesLibres
@@ -113,7 +117,10 @@ class Tren:
         for vagon in vagones:
             self.engancharInicio(vagon.id)
 
-
+    #Metodo: asignarMaquina
+    #Entrada: id de la maquina
+    #Salida: asigna esa maquina al atributo maquina del tren
+    #Restricciones: id es un entero positivo
     def asignarMaquina(self, id): #Acepta trenes en la estacion y afuera
         if self.enEstacion:
             listaMaquinas = maquinasLibres
@@ -128,6 +135,10 @@ class Tren:
             elif maquina == maquinasLibres[-1]:
                 print("Máquina no encontrada")
 
+    #Metodo: engancharInicio
+    #Entrada: id del vagon
+    #Salida: asigna ese vagon al inicio del tren
+    #Restricciones: id es un entero positivo
     def engancharInicio(self, id): #Acepta trenes en la estacion y afuera
         if self.enEstacion:
             listaVagones = vagonesLibres
@@ -155,6 +166,10 @@ class Tren:
         else:
             print("Capacidad de la máquina alcanzada")
 
+    #Metodo: engancharMedio
+    #Entrada: id del vagon y la posicion en que se desea añadir
+    #Salida: asigna ese vagon en la posicion dada
+    #Restricciones: id y pos enteros positivo y pos menor o igual que la carga del tren
     def engancharMedio(self, id, pos): #Solo trenes en la estacion
         if self.carga != self.maquina.capacidad and self.maquina != None:
             for vagon in vagonesLibres:
@@ -186,15 +201,38 @@ class Tren:
         else:
             print("Capacidad de la máquina alcanzada")
 
+    #Metodo: engancharFinal
+    #Entrada: id del vagon
+    #Salida: asigna ese vagon en la ultima posicion
+    #Restricciones: id es un entero positivo
     def engancharFinal(self, id):
         print("Nuevo final")
+
+    #Metodo: quitarVagon
+    #Entrada: pos del vagon
+    #Salida: elimina el vagon existente en la posicion pos
+    #Restricciones: posicion valida
     def quitarVagon(self, pos):
         print("Quitar vagonl")
+
+    #Metodo: salir
+    #Entrada: ninguna
+    #Salida: el tren sale de la estacion, enEstacion pasa a False
+    #Restricciones: maquina asignada y que cumpla con la demanda
     def salir(self):
         print("salir")
+
+    #Metodo: llegar
+    #Entrada: ninguna
+    #Salida: el tren llega a la estacion, enEstacion pasa a True, la maquina y vagones quedan libres
+    #Restricciones: ninguna
     def llegar(self):
         print("Llegar")
 
+    #Metodo: mostrar
+    #Entrada: ninguna
+    #Salida: muestra los atributos y vagones del tren
+    #Restricciones: ninguna
     def mostrar(self):
         print("ID : ", self.id)
         print("Ruta: ", self.ruta)
@@ -228,7 +266,7 @@ class Vagon:
 trains = []
 newTrainID = 0
 
-
+#Lectura de archivo de configuracion
 with open("estacion.txt") as config:
     vagonesLibres = eval(config.readline())
     maquinasLibres = eval(config.readline())
@@ -241,6 +279,10 @@ with open("estacion.txt") as config:
             trains.append(Tren(id=newTrainID, ruta=ruta, hora = line))
             newTrainID += 1
 
+#Funcion: mostrar
+#Entrada: lista
+#Salida: el metodo mostrar para cada elemento de la lista
+#Restricciones: todos los objetos de la lista tienen el metodo mostrar
 def mostrar(lista):
     for i in lista:
         i.mostrar()

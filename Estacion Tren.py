@@ -14,7 +14,13 @@ import time
 blue = (0,0,255)
 black = (0,0,0)
 white = (255,255,255)
-bg_color = (240, 255, 255)
+
+pygame.init()
+
+
+windowWidth = pygame.display.Info().current_w 
+windowHeight = pygame.display.Info().current_h
+fontSize = int(windowWidth/32) # tamaño de letra
 
 #Funcion: cargarImagen
 #Entrada: nombre
@@ -43,7 +49,7 @@ def scale_img(image,width,height):
     return image
 
 class Text:
-    def __init__(self,font = 'microsoftyaheimicrosoftyaheiui',bold = False,italic = False,size = 25,underline = False):
+    def __init__(self,font = 'microsoftyaheimicrosoftyaheiui',bold = False,italic = False,size = fontSize,underline = False):
         self.font = font
         self.bold = bold
         self.italic = italic
@@ -51,6 +57,12 @@ class Text:
         self.size = size
         self.space = (0,0)
         self.color = white
+
+    #Metodo: render
+    #Entrada: texto a mostrar, posición de la superficie donde se desea centrar,
+    #posición de la superficie donde se desea colocar
+    #Salida: texto listo para mostrar y tupla con posicion del texto
+    #Restricciones: posiciones deben ser tuplas
     def render(self,texto,bSize,bDimensions):
         font = pygame.font.SysFont(self.font,self.size)
         self.space = font.size(texto)
@@ -61,6 +73,11 @@ class Text:
         placex = bDimensions[0] + bSize[0]//2 - self.space[0]//2
         placey = bDimensions[1] + bSize[1]//2 - self.space[1]//2
         return text,(placex,placey)
+
+    #Metodo: set_color
+    #Entrada: color
+    #Salida: Cambia el color de un texto
+    #Restricciones: color debe ser RGB
     def set_color(self,color):
         self.color = color
 
@@ -288,26 +305,23 @@ def mostrar(lista):
         i.mostrar()
         print("----------------------------")
 
-pygame.init()
-clock = pygame.time.Clock()
-windowWidth = 800 #pygame.display.Info().current_w
-windowHeight = 600 #pygame.display.Info().current_h
 
-ventana = pygame.display.set_mode([windowWidth,windowHeight]) #, pygame.FULLSCREEN)
+"""__________________________________________________________________________"""
+
+#inicializar Clock
+clock = pygame.time.Clock()
+
+#Crear ventana 
+ventana = pygame.display.set_mode((windowWidth,windowHeight), pygame.FULLSCREEN)
 pygame.display.set_caption("Estación TEC")
 
-bSize = (190, 110)
-cSize = [80,35]
-ListaRutas = [30, 140]
-Demanda = [570,140]
-Llegada = [570,335]
-Salida = [570,365]
-Llegada_salida = [570,350]
-Administrar = [30,335]
-Vagones = [30,365]
-Administrar_v = [30,350]
-Time = [360,15]
+bSize = (windowWidth*0.225,windowHeight*0.225) # tamaño botones
 
+
+#Funcion: buttonPressed
+#Entrada: posicion del cursor y cordenadas rectangulares para revisar
+#Salidas: Verifica si el cursor se encuentra entre las cordenadas
+#restricciones: cordenadas son rectangulares
 def buttonPressed(rect,mouse):
     left = rect[0]
     top = rect[1]
@@ -318,9 +332,31 @@ def buttonPressed(rect,mouse):
     else:
         return False
 
+#ciclo de Menu
 def Menu_loop():
     in_menu = True
-    fondoMenu = cargarImagen("fondo1.png")
+    
+    #cargar imagen de fondo
+    fondoMenu = scale_img(cargarImagen("fondo.png"),windowWidth,windowHeight)
+
+    #Definir posición de botones 
+    boton_top = int(windowHeight*5/24)
+    boton_left = int(windowWidth*15/256)
+    boton_bottom = int(windowHeight*16/29)
+    boton_right = int(windowWidth*131/183)
+
+    #Asignar posicion a cada boton
+    ListaRutas = (boton_left,boton_top ) # posición del boton ListasRutas
+    Demanda = (boton_right,boton_top) # posición del boton Demanda
+    Llegada = (boton_right,boton_bottom - fontSize//2) # posición del texto Llegada
+    Salida = (boton_right,boton_bottom + fontSize//1.5) # posición del texto Salida
+    Llegada_salida = (boton_right,boton_bottom) # posición del boton LLegada-Salida
+    Administrar = (boton_left,boton_bottom- fontSize//2)# posición del texto administrar
+    Vagones = (boton_left,boton_bottom + fontSize//1.5)# posición del texto vagones
+    Administrar_v = (boton_left,boton_bottom)# posición del boton administrar-vagones
+    Time = (int(windowWidth*0.5),int(windowHeight*0.1))# posición del texto time
+
+    #Crear instancias para los textos que se van a mostrar
     text_ListasRutas = Text()
     text_demanda = Text()
     text_llegada = Text()
@@ -328,6 +364,8 @@ def Menu_loop():
     text_administrar = Text()
     text_vagones = Text()
     text_time = Text()
+
+    #Crear rectangulos para los botones 
     botones = [[pygame.Rect(ListaRutas[0],ListaRutas[1],bSize[0],bSize[1]),text_ListasRutas,Lista_Rutas_loop],
                [pygame.Rect(Demanda[0],Demanda[1],bSize[0],bSize[1]),text_demanda,Demanda_loop],
                [pygame.Rect(Llegada_salida[0],Llegada_salida[1],bSize[0],bSize[1]),text_llegada,Llegadas_loop],
@@ -335,31 +373,39 @@ def Menu_loop():
                [pygame.Rect(Administrar_v[0],Administrar_v[1],bSize[0],bSize[1]),text_administrar,Administrar_loop],
                [pygame.Rect(Administrar_v[0],Administrar_v[1],bSize[0],bSize[1]),text_vagones,Administrar_loop]]
 
-    while in_menu:    
+    #ciclo principal de ventana
+    while in_menu:
+            #cerrar ventana
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                if event.type ==pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()    
+    
+            #revisa estado de todos los botones 
             for boton in botones:
                 if buttonPressed(boton[0],pygame.mouse.get_pos()):
+                #ejecuta la funcion respectiva para cada boton
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         boton[2]()
                         in_menu = False
                         break
+                    #cambia color de texto
                     boton[1].set_color(white)
                 else:
                     boton[1].set_color(black)
 
-            rutas = text_ListasRutas.render(" Lista Rutas",bSize, ListaRutas)
-            demanda = text_demanda.render(" Demanda",bSize, Demanda)
-            llegada = text_llegada.render(" Llegadas/",bSize,Llegada)
-            salida = text_salida.render(" Salidas",bSize,Salida)
+            #actualiza los textos de los botones 
+            rutas = text_ListasRutas.render("Lista Rutas",bSize, ListaRutas)
+            demanda = text_demanda.render("Demanda",bSize, Demanda)
+            llegada = text_llegada.render("Llegadas/",bSize,Llegada)
+            salida = text_salida.render("Salidas",bSize,Salida)
             administrar = text_administrar.render( "Administrar",bSize, Administrar)
             clock = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
             vagones = text_vagones.render( "Vagones",bSize, Vagones)
-            time1 = text_time.render(clock,cSize,Time)
+            time1 = text_time.render(clock,(0,0),Time)
             
-
+            #muestra todo en ventana
             ventana.blit(fondoMenu,(0,0))
             ventana.blit(rutas[0],rutas[1])
             ventana.blit(demanda[0],demanda[1])
@@ -368,30 +414,56 @@ def Menu_loop():
             ventana.blit(administrar[0],administrar[1])
             ventana.blit(vagones[0],vagones[1])
             ventana.blit(time1[0],time1[1])
+
+            #actualiza ventana
             pygame.display.update()
 
     
-
+#ciclo de Listas de Rutas
 def Lista_Rutas_loop():
     in_rutas = True
     fondo = cargarImagen("metallic2.jpg")
     while in_rutas:
-        
-        ventana.blit(fondo,(0,0))
-        pygame.display.update()
-        
-def Demanda_loop():
-    in_demanda = True
-    fondo = cargarImagen("metallic2.jpg")
-    while in_demanda:
+
+        #cerrar ventana
+        for event in pygame.event.get():
+            if event.type ==pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()    
         
         ventana.blit(fondo,(0,0))
         pygame.display.update()
 
+#ciclo de Demandas
+def Demanda_loop():
+    in_demanda = True
+    fondo = cargarImagen("metallic2.jpg")
+    while in_demanda:
+
+        #cerrar ventana
+        for event in pygame.event.get():
+            if event.type ==pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                    
+        
+        ventana.blit(fondo,(0,0))
+        pygame.display.update()
+
+#ciclo de Llegadas
 def Llegadas_loop():
     in_llegadas = True
     fondo = cargarImagen("metallic2.jpg")
     while in_llegadas:
+
+        #cerrar ventana
+        for event in pygame.event.get():
+            if event.type ==pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()    
         
         ventana.blit(fondo,(0,0))
         pygame.display.update()
@@ -400,6 +472,13 @@ def Administrar_loop():
     in_administrar = True
     fondo = cargarImagen("metallic2.jpg")
     while in_administrar:
+
+        #cerrar ventana
+        for event in pygame.event.get():
+            if event.type ==pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()    
         
         ventana.blit(fondo,(0,0))
         pygame.display.update()

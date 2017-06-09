@@ -162,7 +162,7 @@ class Tren:
         else:
             listaVagones = vagonesFuera
 
-        if self.carga != self.maquina.capacidad and self.maquina != None:
+        if self.maquina != None and self.carga != self.maquina.capacidad:
             for vagon in listaVagones:
                 if vagon.id == id:
                     temp = self.head
@@ -188,7 +188,7 @@ class Tren:
     #Salida: asigna ese vagon en la posicion dada
     #Restricciones: id y pos enteros positivo y pos menor o igual que la carga del tren
     def engancharMedio(self, id, pos): #Solo trenes en la estacion
-        if self.carga != self.maquina.capacidad and self.maquina != None:
+        if self.maquina != None and self.carga != self.maquina.capacidad:
             for vagon in vagonesLibres:
                 if vagon.id == id:
                     if pos == self.carga:
@@ -223,7 +223,25 @@ class Tren:
     #Salida: asigna ese vagon en la ultima posicion
     #Restricciones: id es un entero positivo
     def engancharFinal(self, id):
-        print("Nuevo final")
+        if self.maquina != None and self.carga != self.maquina.capacidad:
+            for vagon in vagonesLibres:
+                if vagon.id == id:
+                    if self.carga > 0:
+                        temp = self.tail
+                        self.tail.next = vagon
+                        self.tail = vagon
+                        vagon.prev = temp
+                    else:
+                        self.head = vagon
+                        self.tail = vagon
+                    self.carga += 1
+                    self.capacidad += vagon.capacidad
+                    vagonesLibres.remove(vagon)
+                    break
+        elif self.maquina == None:
+            print("No hay máquina asignada") 
+        else:
+            print("Capacidad de la máquina alcanzada")
 
     #Metodo: quitarVagon
     #Entrada: pos del vagon

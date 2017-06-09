@@ -18,7 +18,7 @@ white = (255,255,255)
 pygame.init()
 
 
-windowWidth = pygame.display.Info().current_w 
+windowWidth = pygame.display.Info().current_w
 windowHeight = pygame.display.Info().current_h
 fontSize = int(windowWidth/32) # tamaño de letra
 
@@ -49,7 +49,7 @@ def scale_img(image,width,height):
     return image
 
 class Text:
-    def __init__(self,font = 'microsoftyaheimicrosoftyaheiui',bold = False,italic = False,size = fontSize,underline = False):
+    def __init__(self,font = 'microsoftyaheimicrosoftyaheiui',bold = False,italic = False,size = fontSize,underline = False, texto = ""):
         self.font = font
         self.bold = bold
         self.italic = italic
@@ -57,13 +57,16 @@ class Text:
         self.size = size
         self.space = (0,0)
         self.color = white
+        self.texto = texto
 
     #Metodo: render
     #Entrada: texto a mostrar, posición de la superficie donde se desea centrar,
     #posición de la superficie donde se desea colocar
     #Salida: texto listo para mostrar y tupla con posicion del texto
     #Restricciones: posiciones deben ser tuplas
-    def render(self,texto,bSize,bDimensions):
+    def render(self,texto = None,bSize=(0,0),bDimensions=(0,0)):
+        if texto == None:
+            texto = self.texto
         font = pygame.font.SysFont(self.font,self.size)
         self.space = font.size(texto)
         font.set_bold(self.bold)
@@ -80,6 +83,9 @@ class Text:
     #Restricciones: color debe ser RGB
     def set_color(self,color):
         self.color = color
+
+    def mostrar(self):
+        print(self.texto)
 
 class Tren:
     def __init__(self, id, ruta, hora):
@@ -337,7 +343,7 @@ def Menu_loop():
     in_menu = True
     
     #cargar imagen de fondo
-    fondoMenu = scale_img(cargarImagen("fondo.png"),windowWidth,windowHeight)
+    fondoMenu = scale_img(cargarImagen("fondo.jpg"),windowWidth,windowHeight)
 
     #Definir posición de botones 
     boton_top = int(windowHeight*5/24)
@@ -422,23 +428,39 @@ def Menu_loop():
 #ciclo de Listas de Rutas
 def Lista_Rutas_loop():
     in_rutas = True
-    fondo = cargarImagen("metallic2.jpg")
-    while in_rutas:
+    fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
+    textos = [Text(size=windowWidth // 20, texto="Rutas de hoy" )]
+    ultimaRuta = trains[0].ruta.replace("\n", "")
+    textos.append(Text(texto=ultimaRuta))
+    horas = ""
+    for tren in trains:
+        if tren.ruta.replace("\n", "") != ultimaRuta:
+            ultimaRuta = tren.ruta.replace("\n", "")
+            textos.append(Text(texto=horas.replace("\n","", )))
+            textos.append(Text(texto=ultimaRuta))
+            horas = ""
+        horas += tren.hora + " "
+    textos.append(Text(texto=horas.replace("\n","", )))
 
+    while in_rutas:
+        posicionTextos = windowHeight // 10
         #cerrar ventana
         for event in pygame.event.get():
             if event.type ==pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
-                    sys.exit()    
-        
+                    sys.exit()
         ventana.blit(fondo,(0,0))
+        for texto in textos:
+            rotulo = texto.render(bDimensions=(windowWidth // 2, posicionTextos))
+            ventana.blit(rotulo[0], rotulo[1])
+            posicionTextos += 80
         pygame.display.update()
 
 #ciclo de Demandas
 def Demanda_loop():
     in_demanda = True
-    fondo = cargarImagen("metallic2.jpg")
+    fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     while in_demanda:
 
         #cerrar ventana
@@ -455,7 +477,7 @@ def Demanda_loop():
 #ciclo de Llegadas
 def Llegadas_loop():
     in_llegadas = True
-    fondo = cargarImagen("metallic2.jpg")
+    fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     while in_llegadas:
 
         #cerrar ventana
@@ -470,7 +492,7 @@ def Llegadas_loop():
 
 def Administrar_loop():
     in_administrar = True
-    fondo = cargarImagen("metallic2.jpg")
+    fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     while in_administrar:
 
         #cerrar ventana
@@ -482,7 +504,6 @@ def Administrar_loop():
         
         ventana.blit(fondo,(0,0))
         pygame.display.update()
-
 
 Menu_loop()
 

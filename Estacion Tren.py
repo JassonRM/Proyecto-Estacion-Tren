@@ -254,13 +254,60 @@ class Tren:
     #Salida: elimina el vagon existente en la posicion pos
     #Restricciones: posicion valida
     def quitarVagon(self, pos):
-        print("Quitar vagonl")
+        global vagonesLibres
+        if pos < 0 or pos > self.carga -1:
+            print("Índice fuera de rango")
+                
+        elif self.maquina != None and self.carga != self.maquina.capacidad and self.carga > 0 :
+            if pos == 0:
+                temp = self.head
+                if self.carga > 1:
+                    self.head = temp.next
+                    self.head.prev = None
+                    temp.next = None
+                else:
+                    self.tail = None
+                    self.head = None
+
+            elif pos == self.carga:
+                temp = self.tail
+                self.tail = temp.prev
+                temp.prev = None
+                self.tail.next = None
+                
+            else:
+                temp = self.head
+                cont = 0
+                while temp != self.tail:
+                    if cont == pos:
+                        temp.prev.next = temp.next
+                        temp.next.prev = temp.prev
+                        temp.next = None
+                        temp.prev = None
+                        break
+                    else:
+                        temp = temp.next
+                        connt += 1
+            vagonesLibres += [temp]
+            self.carga -= 1
+                    
+        elif self.maquina == None:
+            print("No hay máquina asignada")
+        elif self.carga == 0:
+            print("No hay vagones asignados")
+        else:
+            print("Capacidad de la máquina alcanzada")
+                
+                    
+                    
+
 
     #Metodo: salir
     #Entrada: ninguna
     #Salida: el tren sale de la estacion, enEstacion pasa a False
     #Restricciones: maquina asignada y que cumpla con la demanda
     def salir(self):
+        self.enEstacion = False
         print("salir")
 
     #Metodo: llegar
@@ -268,6 +315,17 @@ class Tren:
     #Salida: el tren llega a la estacion, enEstacion pasa a True, la maquina y vagones quedan libres
     #Restricciones: ninguna
     def llegar(self):
+        global maquinasLibres
+        global vagonesLibres
+        self.enEstacion = True
+        maquinasLibres += [self.maquina]
+        temp = self.head
+        while temp != None:
+            vagonesLibres += [temp]
+            temp = temp.next
+        self.maquina = None
+        self.head = None
+        self.tail = None
         print("Llegar")
 
     #Metodo: mostrar
@@ -369,33 +427,22 @@ def Menu_loop():
     boton_bottom = int(windowHeight*16/29)
     boton_right = int(windowWidth*131/183)
 
-    #Asignar posicion a cada boton
-    ListaRutas = (boton_left,boton_top ) # posición del boton ListasRutas
-    Demanda = (boton_right,boton_top) # posición del boton Demanda
-    Llegada = (boton_right,boton_bottom - fontSize//2) # posición del texto Llegada
-    Salida = (boton_right,boton_bottom + fontSize//1.5) # posición del texto Salida
-    Llegada_salida = (boton_right,boton_bottom) # posición del boton LLegada-Salida
-    Administrar = (boton_left,boton_bottom- fontSize//2)# posición del texto administrar
-    Vagones = (boton_left,boton_bottom + fontSize//1.5)# posición del texto vagones
-    Administrar_v = (boton_left,boton_bottom)# posición del boton administrar-vagones
-    Time = (int(windowWidth*0.5),int(windowHeight*0.1))# posición del texto time
+    # posición del texto time
+    Time = (int(windowWidth*0.5),int(windowHeight*0.1))
 
-    #Crear instancias para los textos que se van a mostrar
-    text_ListasRutas = Text()
-    text_demanda = Text()
-    text_llegada = Text()
-    text_salida = Text()
-    text_administrar = Text()
-    text_vagones = Text()
+    #crear Texto de Hora
     text_time = Text()
+    
+    #textos = [(posicionx,posiciony,texto,comando)]
+    textos = [(boton_left,boton_top,Text(texto = "Lista Rutas"),Lista_Rutas_loop),(boton_right,boton_top,Text(texto = "Estación"),Demanda_loop),
+              (boton_right,boton_bottom,Text(texto = "Llegadas/"),Llegadas_loop),(boton_right,boton_bottom,Text(texto = "Salidas"),Llegadas_loop),
+              (boton_left,boton_bottom,Text(texto = "Administrar"),Administrar_loop),(boton_left,boton_bottom,Text(texto = "Vagones"),Administrar_loop)]
 
-    #Crear rectangulos para los botones 
-    botones = [[pygame.Rect(ListaRutas[0],ListaRutas[1],bSize[0],bSize[1]),text_ListasRutas,Lista_Rutas_loop],
-               [pygame.Rect(Demanda[0],Demanda[1],bSize[0],bSize[1]),text_demanda,Demanda_loop],
-               [pygame.Rect(Llegada_salida[0],Llegada_salida[1],bSize[0],bSize[1]),text_llegada,Llegadas_loop],
-               [pygame.Rect(Llegada_salida[0],Llegada_salida[1],bSize[0],bSize[1]),text_salida,Llegadas_loop],
-               [pygame.Rect(Administrar_v[0],Administrar_v[1],bSize[0],bSize[1]),text_administrar,Administrar_loop],
-               [pygame.Rect(Administrar_v[0],Administrar_v[1],bSize[0],bSize[1]),text_vagones,Administrar_loop]]
+
+    #boton = (cordenada rectangular,texto,comando)
+    botones = []
+    for texto in textos:
+        botones.append((pygame.Rect(texto[0],texto[1],bSize[0],bSize[1]),texto[2],texto[3]))
 
     #ciclo principal de ventana
     while in_menu:
@@ -418,28 +465,26 @@ def Menu_loop():
                     boton[1].set_color(white)
                 else:
                     boton[1].set_color(black)
-
-            #actualiza los textos de los botones 
-            rutas = text_ListasRutas.render("Lista Rutas",bSize, ListaRutas)
-            demanda = text_demanda.render("Demanda",bSize, Demanda)
-            llegada = text_llegada.render("Llegadas/",bSize,Llegada)
-            salida = text_salida.render("Salidas",bSize,Salida)
-            administrar = text_administrar.render( "Administrar",bSize, Administrar)
-            clock = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
-            vagones = text_vagones.render( "Vagones",bSize, Vagones)
-            time1 = text_time.render(clock,(0,0),Time)
             
-            #muestra todo en ventana
-            ventana.blit(fondoMenu,(0,0))
-            ventana.blit(rutas[0],rutas[1])
-            ventana.blit(demanda[0],demanda[1])
-            ventana.blit(llegada[0],llegada[1])
-            ventana.blit(salida[0],salida[1])
-            ventana.blit(administrar[0],administrar[1])
-            ventana.blit(vagones[0],vagones[1])
-            ventana.blit(time1[0],time1[1])
+            #actualiza la hora
+            clock = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
+            clock = text_time.render(texto = clock,bDimensions = Time)
 
-            #actualiza ventana
+            #Muestra el fondo y la hora
+            ventana.blit(fondoMenu,(0,0))
+            ventana.blit(clock[0],clock[1])
+
+            #actualiza y muestra textos
+            for boton in botones:
+                if boton[1].texto == "Administrar" or boton[1].texto == "Llegadas/":
+                    mensaje = boton[1].render(bSize = bSize,bDimensions = (boton[0][0],boton[0][1]-fontSize//2))
+                elif boton[1].texto == "Vagones" or  boton[1].texto == "Salidas":
+                    mensaje = boton[1].render(bSize = bSize,bDimensions = (boton[0][0],boton[0][1]+fontSize//2))
+                else:
+                    mensaje = boton[1].render(bSize = bSize,bDimensions = (boton[0][0],boton[0][1]))
+                ventana.blit(mensaje[0],mensaje[1])
+
+            #Actualiza ventana
             pygame.display.update()
 
     

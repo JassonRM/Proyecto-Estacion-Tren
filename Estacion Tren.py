@@ -9,6 +9,7 @@ import pygame
 import random
 from threading import Thread
 import time
+import datetime
 
 #Definir colores
 blue = (0,0,255)
@@ -16,7 +17,6 @@ black = (0,0,0)
 white = (255,255,255)
 
 pygame.init()
-
 
 windowWidth = pygame.display.Info().current_w
 windowHeight = pygame.display.Info().current_h
@@ -306,6 +306,7 @@ class Vagon:
 
 trains = []
 newTrainID = 0
+enEjecucion = True
 
 #Lectura de archivo de configuracion
 with open("estacion.txt") as config:
@@ -317,7 +318,8 @@ with open("estacion.txt") as config:
         if line.find("Ruta") != -1:
             ruta = line.replace("Ruta ", "")
         else:
-            trains.append(Tren(id=newTrainID, ruta=ruta, hora = line))
+            hora = int(line[0:2]), int(line[3:])
+            trains.append(Tren(id=newTrainID, ruta=ruta, hora = hora))
             newTrainID += 1
 
 #Funcion: mostrar
@@ -331,6 +333,7 @@ def mostrar(lista):
 
 
 """__________________________________________________________________________"""
+
 
 #inicializar Clock
 clock = pygame.time.Clock()
@@ -358,6 +361,7 @@ def buttonPressed(rect,mouse):
 
 #ciclo de Menu
 def Menu_loop():
+    global enEjecucion
     in_menu = True
     
     #cargar imagen de fondo
@@ -403,6 +407,7 @@ def Menu_loop():
             for event in pygame.event.get():
                 if event.type ==pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        enEjecucion = False
                         pygame.quit()
                         sys.exit()    
     
@@ -445,6 +450,7 @@ def Menu_loop():
     
 #ciclo de Listas de Rutas
 def Lista_Rutas_loop():
+    global enEjecucion
     in_rutas = True
     fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     textos = [Text(size=windowWidth // 20, texto="Rutas de hoy" )]
@@ -454,10 +460,12 @@ def Lista_Rutas_loop():
     for tren in trains:
         if tren.ruta.replace("\n", "") != ultimaRuta:
             ultimaRuta = tren.ruta.replace("\n", "")
-            textos.append(Text(texto=horas.replace("\n","", )))
+            textos.append(Text(texto=horas))
             textos.append(Text(texto=ultimaRuta))
             horas = ""
-        horas += tren.hora + " "
+        if tren.hora[1] < 10:
+            minutos = "0" + str(tren.hora[1])
+        horas += str(tren.hora[0]) + ":" + minutos + " "
     textos.append(Text(texto=horas.replace("\n","", )))
 
     while in_rutas:
@@ -466,6 +474,7 @@ def Lista_Rutas_loop():
         for event in pygame.event.get():
             if event.type ==pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    enEjecucion == False
                     pygame.quit()
                     sys.exit()
         ventana.blit(fondo,(0,0))
@@ -477,6 +486,7 @@ def Lista_Rutas_loop():
 
 #ciclo de Demandas
 def Demanda_loop():
+    global enEjecucion
     in_demanda = True
     fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     while in_demanda:
@@ -485,6 +495,7 @@ def Demanda_loop():
         for event in pygame.event.get():
             if event.type ==pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    enEjecucion = False
                     pygame.quit()
                     sys.exit()
                     
@@ -494,6 +505,7 @@ def Demanda_loop():
 
 #ciclo de Llegadas
 def Llegadas_loop():
+    global enEjecucion
     in_llegadas = True
     fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     while in_llegadas:
@@ -502,6 +514,7 @@ def Llegadas_loop():
         for event in pygame.event.get():
             if event.type ==pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    enEjecucion = False
                     pygame.quit()
                     sys.exit()    
         
@@ -509,6 +522,7 @@ def Llegadas_loop():
         pygame.display.update()
 
 def Administrar_loop():
+    global enEjecucion
     in_administrar = True
     fondo = scale_img(cargarImagen("metallic2.jpg"), windowWidth, windowHeight)
     while in_administrar:
@@ -517,11 +531,24 @@ def Administrar_loop():
         for event in pygame.event.get():
             if event.type ==pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    enEjecucion = False
                     pygame.quit()
                     sys.exit()    
         
         ventana.blit(fondo,(0,0))
         pygame.display.update()
 
+def reloj():
+    while enEjecucion:
+        hora = datetime.datetime.now().hour, datetime.datetime.now().minute
+        for tren in trains:
+            if tren.enEstacion == False and hora == tren.hora:
+                tren.llegar()
+
+
+
+mostrar(trains)
+reloj = Thread(target=reloj, args=())
+reloj.start()
 Menu_loop()
 

@@ -93,16 +93,15 @@ class Tren:
         self.ruta = ruta
         self.hora = hora
         self.demanda = random.randrange(5, 75)
+        self.maquina = None
+        self.head = None
+        self.tail = None
+        self.carga = 0
+        self.capacidad = 0
         if ruta.find("TEC") == 0:
             self.enEstacion = True
-            self.maquina = None
-            self.head = None
-            self.tail = None
-            self.carga = 0
-            self.capacidad = 0
         else:
             self.enEstacion = False
-            self.optimizar(self.demanda)
 
     #Metodo: optimizar
     #Entrada: demanda
@@ -152,9 +151,9 @@ class Tren:
         for maquina in listaMaquinas:
             if maquina.id == id:
                 if self.maquina != None:
-                    maquinasLibres.append(self.maquina)
+                    listaMaquinas.append(self.maquina)
                 self.maquina = maquina
-                maquinasLibres.remove(maquina)
+                listaMaquinas.remove(maquina)
             elif maquina == maquinasLibres[-1]:
                 print("Máquina no encontrada")
 
@@ -180,7 +179,7 @@ class Tren:
                         self.tail = self.head
                     self.carga += 1
                     self.capacidad += vagon.capacidad
-                    vagonesLibres.remove(vagon)
+                    listaVagones.remove(vagon)
                     break
                 elif vagon == vagonesLibres[-1]:
                     print("Vagón no encontrado")
@@ -317,6 +316,7 @@ class Tren:
     def llegar(self):
         global maquinasLibres
         global vagonesLibres
+        self.optimizar(self.demanda)
         self.enEstacion = True
         maquinasLibres += [self.maquina]
         temp = self.head
@@ -516,13 +516,23 @@ def Lista_Rutas_loop():
     while in_rutas:
         posicionTextos = windowHeight // 10
         #cerrar ventana
+        iconoAtras = "atras.png"
+        botonAtras = pygame.Rect(windowWidth // 10, windowHeight // 10, windowWidth // 10, windowHeight // 5.62)
+        if buttonPressed(botonAtras, pygame.mouse.get_pos()):
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                Menu_loop()
+            iconoAtras = "atras1.png"
+        else:
+            iconoAtras = "atras.png"
+
         for event in pygame.event.get():
-            if event.type ==pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    enEjecucion == False
+                    enEjecucion = False
                     pygame.quit()
                     sys.exit()
         ventana.blit(fondo,(0,0))
+        ventana.blit(scale_img(cargarImagen(iconoAtras), windowWidth // 10, int(windowHeight // 5.62)), (windowWidth//10, windowHeight // 10))
         for texto in textos:
             rotulo = texto.render(bDimensions=(windowWidth // 2, posicionTextos))
             ventana.blit(rotulo[0], rotulo[1])
@@ -585,14 +595,14 @@ def Administrar_loop():
 
 def reloj():
     while enEjecucion:
-        hora = datetime.datetime.now().hour, datetime.datetime.now().minute
+        hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
         for tren in trains:
-            if tren.enEstacion == False and hora == tren.hora:
+            if tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0:
                 tren.llegar()
+        clock.tick(1)
 
 
 
-mostrar(trains)
 reloj = Thread(target=reloj, args=())
 reloj.start()
 Menu_loop()

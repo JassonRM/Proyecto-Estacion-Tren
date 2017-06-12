@@ -1,4 +1,4 @@
-# Tercer proyecto programado
+5# Tercer proyecto programado
 # Estacion de Tren
 # Jasson Rodriguez
 # Marco Herrera
@@ -373,11 +373,12 @@ def rutas_loop():
     c_rutas.create_image(0,0,image = fondo,anchor = NW)
 
     #Titulo
-    c_rutas.create_text(windowWidth//2,windowHeight//10,text = "Rutas de hoy", font = (font, 40),anchor = CENTER, fill="#FFFFFF")
+#    c_rutas.create_text(windowWidth//2,windowHeight//10,text = "Rutas de hoy", font = (font, 40),anchor = CENTER, fill="#FFFFFF")
 
     #Horarios
     textos = []
     ultimaRuta = trains[0].ruta.replace("\n", "")
+    #textos.append("Rutas de hoy") #titulo
     textos.append(ultimaRuta)
     horas = ""
     for tren in trains:
@@ -390,13 +391,18 @@ def rutas_loop():
             minutos = "0" + str(tren.hora[1])
         horas += str(tren.hora[0]) + ":" + minutos + " "
     textos.append(horas)
+    
+    posicionTextos = 70
+    aumento = (windowHeight - 70) // len(textos)
 
-    posicionTextos = windowHeight // 10 + 80
-
+    c_rutas.create_text(windowWidth // 2, posicionTextos/2 , text="RUTAS DE HOY", font=(font, int(aumento/2), "bold"), fill="#FFFFFF")
+    
     for texto in textos:
-        c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, 30), anchor=CENTER, fill="#FFFFFF")
-        posicionTextos += 80
+        c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, int(aumento/3)), anchor=N, fill="#FFFFFF")
+        posicionTextos += aumento
 
+    
+    
 
     #Funcion de volver
     def salirRutas():
@@ -417,8 +423,19 @@ def animacion(): #Da error al cerrar la ventana
         reloj.config(text=hora)
         time.sleep(1)
 
-
+def formar_tren(tren):
+    temp = tren.head
+    pos = 100
+    largoTren = 135
+    c_ventana.vagon = cargarImagen("vagón.png",0.1)
+    while temp != None:
+        c_ventana.create_image(pos,600,image= c_ventana.vagon)
+        c_ventana.update()
+        temp = temp.next
+        pos += largoTren
 """__________________________________________________________________________"""
+
+trains[0].optimizar(75)
 
 #Crear ventana 
 ventana = Tk()
@@ -439,13 +456,15 @@ bfSize = 16
 
 #Carga fondo
 fondo = cargarImagen("estacion.png", 1)
-#c_ventana.create_image(0, 0, image=fondo, anchor=NW)
-bg = Label(c_ventana, image=fondo)
-bg.place(x=0,y=0)
+c_ventana.create_image(0, 0, image=fondo, anchor=NW)
+#bg = c_ventana.create_image(0,0, image=fondo,anchor = NW)
 
 #Boton para ir a rutas
 boton_rutas = Button(ventana, image=boton, text="RUTAS", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=rutas_loop, relief=FLAT)
 boton_rutas.place(relx=0.005, rely=0.01)
+
+boton_vagon = Button(ventana, image=boton, text="VAGON", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=lambda:formar_tren(trains[0]), relief=FLAT)
+boton_vagon.place(relx=0.005, rely=0.125)
 
 #Hora
 hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]

@@ -21,7 +21,7 @@ from PIL import Image, ImageTk
 def cargarImagen(nombre,tamaño):
     ruta = os.path.join("Imagenes", nombre)
     imagen = Image.open(ruta)
-    imagen.thumbnail((tamaño,tamaño*9//16))
+    imagen.thumbnail((tamaño * windowWidth,tamaño * windowHeight))
     imagen = ImageTk.PhotoImage(image = imagen)
     return imagen
 
@@ -252,10 +252,6 @@ class Tren:
             print("No hay vagones asignados")
         else:
             print("Capacidad de la máquina alcanzada")
-                
-                    
-                    
-
 
     #Metodo: salir
     #Entrada: ninguna
@@ -345,71 +341,6 @@ def mostrar(lista):
         i.mostrar()
         print("----------------------------")
 
-
-"""__________________________________________________________________________"""
-
-estacion = True
-in_rutas = False
-
-#Crear ventana 
-ventana = Tk()
-windowWidth = ventana.winfo_screenwidth()
-windowHeight = ventana.winfo_screenheight()
-ventana.overrideredirect(True)
-ventana.geometry("%dx%d+0+0" %(windowWidth,windowHeight))
-ventana.title("Estación TEC")
-c_ventana = Canvas(ventana)
-c_ventana.pack(fill=BOTH, expand=True)
-boton = cargarImagen("boton.png",windowWidth//10)
-font = "Courier New"
-bfSize = 16
-
-def rutas_estacion():
-    global estacion
-    global in_rutas
-    if in_rutas:
-        in_rutas = False
-        estacion = True
-    elif estacion:
-        estacion = False
-        in_rutas = True
-        
-def rutas_loop():
-    rutas = Toplevel()
-    rutas.geometry("%dx%d+0+0" %(windowWidth,windowHeight))
-    c_rutas = Canvas(rutas)
-    c_rutas.pack(fill=BOTH, expand=True)
-    rutas.overrideredirect(True)
-    fondo = cargarImagen("metallic2.png",windowWidth)
-    boton_estacion = Button(c_rutas,image = boton,text = "ESTACIÓN",font = (font,bfSize),compound = "center", activeforeground= "white",command = rutas_estacion)
-    while in_rutas:
-        c_rutas.create_image(0,0,image = fondo,anchor = NW)
-        c_rutas.create_text(windowWidth//2,windowHeight//2,text = "Rutas de hoy", font = (font, 30),anchor = CENTER)
-        boton_estacion.place(relx = 0.005,rely = 0.01)
-        rutas.update()
-    if estacion:
-        rutas.destroy()
-        estacion_loop()
-
-def estacion_loop():
-    ventana.deiconify()
-    
-    fondo = cargarImagen("estacion.png",windowWidth)
-    boton_rutas = Button(ventana,image = boton,text = "RUTAS",font = (font,bfSize),compound = "center", activeforeground= "white",command = rutas_estacion)
-    while estacion:
-        hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
-        c_ventana.create_image(0,0,image = fondo,anchor = NW)
-        c_ventana.create_text(windowWidth//2,windowHeight//10,text = hora, font = (font, 30),anchor = CENTER)
-        boton_rutas.place(relx = 0.005,rely = 0.01)
-        ventana.update()
-        
-    if in_rutas:
-        ventana.withdraw()
-        rutas_loop()
-    
-    
-
-estacion_loop()
 """
 def reloj():
     while enEjecucion:
@@ -424,3 +355,106 @@ def reloj():
 reloj = Thread(target=reloj, args=())
 reloj.start()
 """
+
+#Funcion: rutas_loop
+#Entrada: ninguna
+#Salida: crea una ventana con las rutas del dia
+#Restricciones: ninguna
+def rutas_loop():
+    ventana.withdraw()
+    #Crea la ventana
+    rutas = Toplevel()
+    rutas.minsize(windowWidth, windowHeight)
+    c_rutas = Canvas(rutas)
+    c_rutas.pack(fill=BOTH, expand=True)
+
+    #Carga el fondo
+    fondo = cargarImagen("metallic2.png",1)
+    c_rutas.create_image(0,0,image = fondo,anchor = NW)
+
+    #Titulo
+    c_rutas.create_text(windowWidth//2,windowHeight//10,text = "Rutas de hoy", font = (font, 40),anchor = CENTER, fill="#FFFFFF")
+
+    #Horarios
+    textos = []
+    ultimaRuta = trains[0].ruta.replace("\n", "")
+    textos.append(ultimaRuta)
+    horas = ""
+    for tren in trains:
+        if tren.ruta.replace("\n", "") != ultimaRuta:
+            ultimaRuta = tren.ruta.replace("\n", "")
+            textos.append(horas)
+            textos.append(ultimaRuta)
+            horas = ""
+        if tren.hora[1] < 10:
+            minutos = "0" + str(tren.hora[1])
+        horas += str(tren.hora[0]) + ":" + minutos + " "
+    textos.append(horas)
+
+    posicionTextos = windowHeight // 10 + 80
+
+    for texto in textos:
+        c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, 30), anchor=CENTER, fill="#FFFFFF")
+        posicionTextos += 80
+
+
+    #Funcion de volver
+    def salirRutas():
+        rutas.destroy()
+        ventana.deiconify()
+
+    #Boton de volver
+    boton_estacion = Button(c_rutas,image = boton,text = "ESTACIÓN",font = (font,bfSize),compound = "center", activeforeground= "white",command = salirRutas)
+    boton_estacion.place(relx = 0.005,rely = 0.01)
+
+    rutas.mainloop()
+
+
+
+def animacion(): #Da error al cerrar la ventana
+    while True:
+        hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
+        reloj.config(text=hora)
+        time.sleep(1)
+
+
+"""__________________________________________________________________________"""
+
+#Crear ventana 
+ventana = Tk()
+windowWidth = ventana.winfo_screenwidth()
+windowHeight = windowWidth * 9 // 16
+ventana.minsize(windowWidth, windowHeight)
+ventana.resizable(False,False)
+ventana.title("Estación TEC")
+
+#Crear canvas
+c_ventana = Canvas(ventana)
+c_ventana.pack(fill=BOTH, expand=True)
+
+
+boton = cargarImagen("boton.png",0.1)
+font = "Courier New"
+bfSize = 16
+
+#Carga fondo
+fondo = cargarImagen("estacion.png", 1)
+#c_ventana.create_image(0, 0, image=fondo, anchor=NW)
+bg = Label(c_ventana, image=fondo)
+bg.place(x=0,y=0)
+
+#Boton para ir a rutas
+boton_rutas = Button(ventana, image=boton, text="RUTAS", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=rutas_loop, relief=FLAT)
+boton_rutas.place(relx=0.005, rely=0.01)
+
+#Hora
+hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
+#c_ventana.create_text(windowWidth // 2, windowHeight // 10, text=hora, font=(font, 30), anchor=CENTER)
+reloj = Label(c_ventana, text=hora, bg="#6fc5cb", font=(font, 30))
+reloj.place(relx=0.5, rely= 0.075, anchor=CENTER)
+
+tiempo = Thread(target=animacion, args=())
+tiempo.start()
+
+ventana.mainloop()
+

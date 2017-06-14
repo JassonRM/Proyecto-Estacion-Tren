@@ -288,11 +288,14 @@ class Tren:
         print("ID : ", self.id)
         print("Ruta: ", self.ruta)
         print("Hora: ", self.hora)
+        print("Estacion: ", self.enEstacion)
         if self.maquina != None and self.head != None:
+            print("Maquina: ")
+            self.maquina.mostrar()
             temp = self.head
+            print("Vagones")
             while temp != None:
                 temp.mostrar()
-                print("\n")
                 temp = temp.next
 
 class Maquina:
@@ -301,7 +304,7 @@ class Maquina:
         self.capacidad = capacidad
 
     def mostrar(self):
-        print("ID: ", id, " Capacidad: ", capacidad)
+        print("ID: ", self.id, " Capacidad: ", self.capacidad)
 
 class Vagon:
     def __init__(self, id, capacidad):
@@ -326,7 +329,7 @@ with open("estacion.txt") as config:
     maquinasFuera = eval(config.readline())
     for line in config:
         if line.find("Ruta") != -1:
-            ruta = line.replace("Ruta ", "")
+            ruta = line.replace("Ruta ", "").replace("\n", "")
         else:
             hora = int(line[0:2]), int(line[3:])
             trains.append(Tren(id=newTrainID, ruta=ruta, hora = hora))
@@ -341,20 +344,30 @@ def mostrar(lista):
         i.mostrar()
         print("----------------------------")
 
-"""
-def reloj():
-    while enEjecucion:
-        hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
-        for tren in trains:
-            if tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0:
-                tren.llegar()
-        clock.tick(1)
-
-
-
-reloj = Thread(target=reloj, args=())
-reloj.start()
-"""
+#Funcion: ruta_hora
+#Entrada: lista y hora
+#Salida: rutas por hora
+#Restricciones: hora es un numero entero
+def ruta_hora(lista, hora):
+    salidas = []
+    llegadas = []
+    for tren in trains:
+        if tren.hora[0] == hora:
+            if tren.hora[1] < 10:
+                minutos = "0" + str(tren.hora[1])
+            else:
+                minutos = str(tren.hora[1])
+            ruta = tren.ruta + " " + str(tren.hora[0]) + ":" + minutos
+            if tren.enEstacion:
+                salidas.append(ruta)
+            else:
+                llegadas.append(ruta)
+    print("Salidas")
+    for hora in salidas:
+        print(hora)
+    print("Llegadas")
+    for hora in llegadas:
+        print(hora)
 
 #Funcion: rutas_loop
 #Entrada: ninguna
@@ -433,9 +446,23 @@ def formar_tren(tren):
         c_ventana.update()
         temp = temp.next
         pos += largoTren
+#Funcion: timer
+#Entrada: ninguna
+#Salida: ejecuta las acciones de los trenes de acuerdo a la hora
+#Restricciones: ninguna
+def timer():
+    while True:
+        hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
+        trains_copy = trains[:]
+        for tren in trains_copy:
+            if tren.enEstacion == True and (hora[0] > tren.hora[0] or (hora[0] == tren.hora[0] and hora[1] > tren.hora[1])): #Elimina los trenes que ya pasaron
+                trains.remove(tren)
+
+            elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
+                tren.llegar()
+        time.sleep(1)
 """__________________________________________________________________________"""
 
-trains[0].optimizar(75)
 
 #Crear ventana 
 ventana = Tk()
@@ -474,6 +501,15 @@ reloj.place(relx=0.5, rely= 0.075, anchor=CENTER)
 
 tiempo = Thread(target=animacion, args=())
 tiempo.start()
+
+hiloTimer = Thread(target=timer, args=())
+hiloTimer.start()
+
+
+#Pruebas
+#mostrar(vagonesLibres)
+#mostrar(trains)
+ruta_hora(trains, 23)
 
 ventana.mainloop()
 

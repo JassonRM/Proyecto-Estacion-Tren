@@ -87,6 +87,7 @@ class Tren:
                     if mejorVagon == None or demanda - vagon.capacidad < demanda - mejorVagon.capacidad:
                         mejorVagon = vagon
             vagones.append(mejorVagon)
+            listaVagones.remove(mejorVagon)
             demanda -= mejorVagon.capacidad
         mejorMaquina = None
         for maquina in listaMaquinas:
@@ -125,7 +126,6 @@ class Tren:
             listaVagones = vagonesLibres
         else:
             listaVagones = vagonesFuera
-
         if self.maquina != None and self.carga != self.maquina.capacidad:
             for vagon in listaVagones:
                 if vagon.id == id:
@@ -444,7 +444,7 @@ def formar_tren(tren):
     temp = tren.head
     pos = 100
     largoTren = 135
-    c_ventana.vagon = cargarImagen("vagón.png",0.1)
+    c_ventana.vagon = cargarImagen("vagón.png",0.5)
     while temp != None:
         c_ventana.create_image(pos,600,image= c_ventana.vagon)
         c_ventana.update()
@@ -475,7 +475,7 @@ def refresh ():
 """__________________________________________________________________________"""
 
 trains2["TEC-Cartago - 15:00"].optimizar(75)
-trains2["TEC-Cartago - 15:00"].mostrar()
+#trains2["TEC-Cartago - 15:00"].mostrar()
 
 #Funcion: timer
 #Entrada: ninguna
@@ -549,7 +549,7 @@ hiloTimer.start()
 #Pruebas
 #mostrar(vagonesLibres)
 #mostrar(trains)
-ruta_hora(trains, 23)
+#ruta_hora(trains, 23)
 
 ventana.mainloop()
 

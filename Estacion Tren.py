@@ -508,7 +508,8 @@ c_ventana = Canvas(ventana)
 c_ventana.pack(fill=BOTH, expand=True)
 
 
-boton = cargarImagen("boton.png",0.1)
+botonSettings = cargarImagen("boton settings.png",0.2)
+botonInfo = cargarImagen("boton info.png", 0.2)
 font = "Courier New"
 bfSize = 16
 
@@ -518,10 +519,10 @@ c_ventana.create_image(0, 0, image=fondo, anchor=NW)
 #bg = c_ventana.create_image(0,0, image=fondo,anchor = NW)
 
 #Boton para ir a rutas
-boton_rutas = Button(ventana, image=boton, text="RUTAS", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=rutas_loop, relief=FLAT)
+boton_rutas = Button(ventana, image=botonInfo, borderwidth=0, command=rutas_loop, relief=FLAT)
 boton_rutas.place(relx=0.005, rely=0.01)
 
-boton_vagon = Button(ventana, image=boton, text="VAGON", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
+boton_vagon = Button(ventana, image=botonSettings, borderwidth=0, command=lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.005, rely=0.125)
 
 tren_menu = StringVar(c_ventana)

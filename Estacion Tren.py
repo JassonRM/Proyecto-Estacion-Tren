@@ -437,8 +437,8 @@ def rutas_loop():
 
 
 
-def animacion(): #Da error al cerrar la ventana
-    while True:
+def animacion():
+    while enEjecucion:
         hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
         reloj.config(text=hora)
         time.sleep(1)
@@ -486,7 +486,7 @@ trains2["TEC-Cartago - 15:00"].optimizar(75)
 #Salida: ejecuta las acciones de los trenes de acuerdo a la hora
 #Restricciones: ninguna
 def timer():
-    while True:
+    while enEjecucion:
         hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
         trains_copy = trains[:]
         for tren in trains_copy:
@@ -497,7 +497,14 @@ def timer():
                 tren.llegar()
         time.sleep(1)
 """__________________________________________________________________________"""
-
+#Funcion: cerrar
+#Entrada: ninguna
+#Salida: termina todos los procesos
+#Restricciones: ninguna
+def cerrar():
+    global enEjecucion
+    enEjecucion = False
+    ventana.destroy()
 
 #Crear ventana 
 ventana = Tk()
@@ -554,6 +561,7 @@ hiloTimer.start()
 #mostrar(vagonesLibres)
 #mostrar(trains)
 #ruta_hora(trains, 23)
+ventana.protocol("WM_DELETE_WINDOW", cerrar)
 
 ventana.mainloop()
 

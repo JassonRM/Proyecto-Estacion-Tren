@@ -1,4 +1,4 @@
-5# Tercer proyecto programado
+# Tercer proyecto programado
 # Estacion de Tren
 # Jasson Rodriguez
 # Marco Herrera
@@ -407,6 +407,7 @@ def rutas_loop():
         if tren.hora[1] < 10:
             minutos = "0" + str(tren.hora[1])
         horas += str(tren.hora[0]) + ":" + minutos + " "
+
     textos.append(horas)
     
     posicionTextos = 70
@@ -432,8 +433,37 @@ def rutas_loop():
 
     rutas.mainloop()
 
+def checked(lista):
+    resultado = []
+    for ele in lista:
+        if ele.get() != 0:
+            resultado.append(ele.get())
+    print(resultado)
+    
+def armar_loop():
+    ventana.withdraw()
+    #Crea la ventana
+    armar = Toplevel()
+    armar.minsize(windowWidth, windowHeight)
+    c_armar = Canvas(armar)
+    c_armar.pack(fill=BOTH, expand=True)
+    datos = []
+    
+    for vagon in vagonesLibres:
+        datos += [("ID: " + str(vagon.id) + " Capacidad: " + str(vagon.capacidad) , vagon)]
 
+    variables = []
+    for dato in datos:
+        var = IntVar()
+        check = Checkbutton(c_armar, text = dato[0], variable = var,onvalue = dato[1].id, offvalue = None)
+        check.pack()
+        variables.append(var)
 
+    check = Button(c_armar,text = "e",command =lambda variables = variables:checked(variables))
+    check.place(x= 0,y=0)
+
+    armar.mainloop()
+    
 def animacion(): #Da error al cerrar la ventana
     while True:
         hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
@@ -474,7 +504,7 @@ def refresh ():
     
 """__________________________________________________________________________"""
 
-trains2["TEC-Cartago - 15:00"].optimizar(75)
+#trains2["TEC-Cartago - 15:00"].optimizar(75)
 #trains2["TEC-Cartago - 15:00"].mostrar()
 
 #Funcion: timer
@@ -522,7 +552,7 @@ c_ventana.create_image(0, 0, image=fondo, anchor=NW)
 boton_rutas = Button(ventana, image=botonInfo, borderwidth=0, command=rutas_loop, relief=FLAT)
 boton_rutas.place(relx=0.005, rely=0.01)
 
-boton_vagon = Button(ventana, image=botonSettings, borderwidth=0, command=lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
+boton_vagon = Button(ventana, image=botonSettings, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.005, rely=0.125)
 
 tren_menu = StringVar(c_ventana)

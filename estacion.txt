@@ -5,7 +5,7 @@
 Ruta TEC-Alajuela
 07:00
 11:00
-15:00
+11:00
 19:00
 Ruta Alajuela-TEC
 05:00

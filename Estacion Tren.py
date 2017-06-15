@@ -59,17 +59,20 @@ class Tren:
         else:
             self.enEstacion = False
 
+    def get_hora(self):
+        return self.hora
+
     #Metodo: optimizar
     #Entrada: demanda
     #Salida: asigna los vagones y la maquina de acuerdo a la demanda existente
     #Restricciones: demanda es un entero positivo
     def optimizar(self, demanda):
-        if self.enEstacion:
-            listaVagones = vagonesLibres
-            listaMaquinas = maquinasLibres
-        else:
-            listaVagones = vagonesFuera
-            listaMaquinas = maquinasFuera
+        #if self.enEstacion:
+        listaVagones = vagonesLibres
+        listaMaquinas = maquinasLibres
+##        else:
+##            listaVagones = vagonesFuera
+##            listaMaquinas = maquinasFuera
 
         vagones = []
         while demanda > 0:
@@ -341,20 +344,6 @@ def mostrar(lista):
         i.mostrar()
         print("----------------------------")
 
-"""
-def reloj():
-    while enEjecucion:
-        hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
-        for tren in trains:
-            if tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0:
-                tren.llegar()
-        clock.tick(1)
-
-
-
-reloj = Thread(target=reloj, args=())
-reloj.start()
-"""
 
 #Funcion: rutas_loop
 #Entrada: ninguna
@@ -433,9 +422,30 @@ def formar_tren(tren):
         c_ventana.update()
         temp = temp.next
         pos += largoTren
+
+def diccionario_trenes (trains):
+    dicc = {}
+    for train in trains:
+        clave = train.ruta[:-1] + " - " + str(train.hora[0]) + ":" + str(train.hora[1])
+        if train.hora[1] == 0:
+            clave += "0"
+        dicc[clave] = train
+    return dicc
+
+trains2 = diccionario_trenes(trains)
+    
+def refresh ():
+    global menu
+    menu["menu"].delete(0,'end')
+    tren_menu.set("RUTAS")
+    for train in trains2:
+        if trains2[train].get_hora()[0] == datetime.datetime.now().hour:
+            menu["menu"].add_command(label=train, command = lambda frase = train : tren_menu.set(frase))
+  
+    
 """__________________________________________________________________________"""
 
-trains[0].optimizar(75)
+trains2["TEC-Alajuela - 13:00"].optimizar(5)
 
 #Crear ventana 
 ventana = Tk()
@@ -463,8 +473,17 @@ c_ventana.create_image(0, 0, image=fondo, anchor=NW)
 boton_rutas = Button(ventana, image=boton, text="RUTAS", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=rutas_loop, relief=FLAT)
 boton_rutas.place(relx=0.005, rely=0.01)
 
-boton_vagon = Button(ventana, image=boton, text="VAGON", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=lambda:formar_tren(trains[0]), relief=FLAT)
+boton_vagon = Button(ventana, image=boton, text="VAGON", font=(font, bfSize), compound="center", activeforeground="white", borderwidth=0, command=lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.005, rely=0.125)
+
+tren_menu = StringVar(c_ventana)
+tren_menu.set("RUTAS")
+menu = OptionMenu(c_ventana,tren_menu,None)
+refresh()
+menu.config(bg = "#40aeb2", relief = FLAT,highlightbackground = "#40aeb2", font = (font, bfSize))
+menu["menu"].config(bg = "WHITE",relief = FLAT,font = (font, bfSize))
+menu.place(relx=0.11, rely=0.18)
+
 
 #Hora
 hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]

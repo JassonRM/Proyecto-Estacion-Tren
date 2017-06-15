@@ -338,6 +338,8 @@ with open("estacion.txt") as config:
             trains.append(Tren(id=newTrainID, ruta=ruta, hora = hora))
             newTrainID += 1
 
+trenesDia = trains[:]
+
 #Funcion: mostrar
 #Entrada: lista
 #Salida: el metodo mostrar para cada elemento de la lista
@@ -386,19 +388,29 @@ def rutas_loop():
     c_rutas.pack(fill=BOTH, expand=True)
 
     #Carga el fondo
-    fondo = cargarImagen("metallic2.png",1)
+    fondo = cargarImagen("fondo claro.png",1)
     c_rutas.create_image(0,0,image = fondo,anchor = NW)
+
+    #Funcion de volver
+    def salirRutas():
+        rutas.destroy()
+        ventana.deiconify()
+
+    # Boton volver
+    backButton = cargarImagen("back button.png", 0.1)
+    botonVolver = Button(c_rutas, image=backButton, command=salirRutas, bg="#000000")
+    botonVolver.place(relx=0.05, rely=0.05)
+
 
     #Titulo
 #    c_rutas.create_text(windowWidth//2,windowHeight//10,text = "Rutas de hoy", font = (font, 40),anchor = CENTER, fill="#FFFFFF")
 
     #Horarios
     textos = []
-    ultimaRuta = trains[0].ruta.replace("\n", "")
-    #textos.append("Rutas de hoy") #titulo
+    ultimaRuta = trenesDia[0].ruta.replace("\n", "")
     textos.append(ultimaRuta)
     horas = ""
-    for tren in trains:
+    for tren in trenesDia:
         if tren.ruta.replace("\n", "") != ultimaRuta:
             ultimaRuta = tren.ruta.replace("\n", "")
             textos.append(horas)
@@ -406,30 +418,21 @@ def rutas_loop():
             horas = ""
         if tren.hora[1] < 10:
             minutos = "0" + str(tren.hora[1])
+        else:
+            minutos = str(tren.hora[1])
         horas += str(tren.hora[0]) + ":" + minutos + " "
 
     textos.append(horas)
     
-    posicionTextos = 70
-    aumento = (windowHeight - 70) // len(textos)
+    posicionTextos = 140
+    aumento = (windowHeight - 140) // len(textos)
 
-    c_rutas.create_text(windowWidth // 2, posicionTextos/2 , text="RUTAS DE HOY", font=(font, int(aumento/2), "bold"), fill="#FFFFFF")
+    c_rutas.create_text(windowWidth // 2, posicionTextos/2 , text="RUTAS DE HOY", font=(font, int(aumento/2), "bold"), fill="#000000")
     
     for texto in textos:
-        c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, int(aumento/3)), anchor=N, fill="#FFFFFF")
+        c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, int(aumento/3)), anchor=N, fill="#000000")
         posicionTextos += aumento
 
-    
-    
-
-    #Funcion de volver
-    def salirRutas():
-        rutas.destroy()
-        ventana.deiconify()
-
-    #Boton de volver
-    boton_estacion = Button(c_rutas,image = boton,text = "ESTACIÓN",font = (font,bfSize),compound = "center", activeforeground= "white",command = salirRutas)
-    boton_estacion.place(relx = 0.005,rely = 0.01)
 
     rutas.mainloop()
 
@@ -463,20 +466,22 @@ def armar_loop():
     check.place(x= 0,y=0)
 
     armar.mainloop()
-    
-def animacion(): #Da error al cerrar la ventana
-    while True:
+
+def animacion():
+    while enEjecucion:
         hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
         reloj.config(text=hora)
         time.sleep(1)
 
 def formar_tren(tren):
     temp = tren.head
-    pos = 100
+    imagenMaquina = cargarImagen("maquina.png", 0.5)
+    c_ventana.create_image(100, 600, image = imagenMaquina)
+    pos = 235
     largoTren = 135
-    c_ventana.vagon = cargarImagen("vagón.png",0.5)
+    c_ventana.vagon = cargarImagen("vagon.png",0.5)
     while temp != None:
-        c_ventana.create_image(pos,600,image= c_ventana.vagon)
+        c_ventana.create_image(pos,600,image = c_ventana.vagon)
         c_ventana.update()
         temp = temp.next
         pos += largoTren
@@ -504,15 +509,12 @@ def refresh ():
     
 """__________________________________________________________________________"""
 
-#trains2["TEC-Cartago - 15:00"].optimizar(75)
-#trains2["TEC-Cartago - 15:00"].mostrar()
-
 #Funcion: timer
 #Entrada: ninguna
 #Salida: ejecuta las acciones de los trenes de acuerdo a la hora
 #Restricciones: ninguna
 def timer():
-    while True:
+    while enEjecucion:
         hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
         trains_copy = trains[:]
         for tren in trains_copy:
@@ -523,7 +525,14 @@ def timer():
                 tren.llegar()
         time.sleep(1)
 """__________________________________________________________________________"""
-
+#Funcion: cerrar
+#Entrada: ninguna
+#Salida: termina todos los procesos
+#Restricciones: ninguna
+def cerrar():
+    global enEjecucion
+    enEjecucion = False
+    ventana.destroy()
 
 #Crear ventana 
 ventana = Tk()
@@ -537,16 +546,15 @@ ventana.title("Estación TEC")
 c_ventana = Canvas(ventana)
 c_ventana.pack(fill=BOTH, expand=True)
 
-
-botonSettings = cargarImagen("boton settings.png",0.2)
-botonInfo = cargarImagen("boton info.png", 0.2)
+#Imagenes botones
+botonSettings = cargarImagen("boton settings.png",0.15)
+botonInfo = cargarImagen("boton info.png", 0.15)
 font = "Courier New"
 bfSize = 16
 
 #Carga fondo
 fondo = cargarImagen("estacion.png", 1)
 c_ventana.create_image(0, 0, image=fondo, anchor=NW)
-#bg = c_ventana.create_image(0,0, image=fondo,anchor = NW)
 
 #Boton para ir a rutas
 boton_rutas = Button(ventana, image=botonInfo, borderwidth=0, command=rutas_loop, relief=FLAT)
@@ -559,9 +567,9 @@ tren_menu = StringVar(c_ventana)
 tren_menu.set("RUTAS")
 menu = OptionMenu(c_ventana,tren_menu,None)
 refresh()
-menu.config(bg = "#40aeb2", relief = FLAT,highlightbackground = "#40aeb2", font = (font, bfSize))
+menu.config(bg = "#6fc5cb", relief = FLAT,highlightbackground = "#6fc5cb", font = (font, bfSize))
 menu["menu"].config(bg = "WHITE",relief = FLAT,font = (font, bfSize))
-menu.place(relx=0.11, rely=0.18)
+menu.place(relx=0.18, rely=0.04)
 
 
 #Hora
@@ -581,6 +589,7 @@ hiloTimer.start()
 #mostrar(vagonesLibres)
 #mostrar(trains)
 #ruta_hora(trains, 23)
+ventana.protocol("WM_DELETE_WINDOW", cerrar)
 
 ventana.mainloop()
 

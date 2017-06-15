@@ -67,12 +67,12 @@ class Tren:
     #Salida: asigna los vagones y la maquina de acuerdo a la demanda existente
     #Restricciones: demanda es un entero positivo
     def optimizar(self, demanda):
-        #if self.enEstacion:
-        listaVagones = vagonesLibres
-        listaMaquinas = maquinasLibres
-##        else:
-##            listaVagones = vagonesFuera
-##            listaMaquinas = maquinasFuera
+        if self.enEstacion:
+            listaVagones = vagonesLibres
+            listaMaquinas = maquinasLibres
+        else:
+            listaVagones = vagonesFuera
+            listaMaquinas = maquinasFuera
 
         vagones = []
         while demanda > 0:
@@ -291,11 +291,14 @@ class Tren:
         print("ID : ", self.id)
         print("Ruta: ", self.ruta)
         print("Hora: ", self.hora)
+        print("Estacion: ", self.enEstacion)
         if self.maquina != None and self.head != None:
+            print("Maquina: ")
+            self.maquina.mostrar()
             temp = self.head
+            print("Vagones")
             while temp != None:
                 temp.mostrar()
-                print("\n")
                 temp = temp.next
 
 class Maquina:
@@ -304,7 +307,7 @@ class Maquina:
         self.capacidad = capacidad
 
     def mostrar(self):
-        print("ID: ", id, " Capacidad: ", capacidad)
+        print("ID: ", self.id, " Capacidad: ", self.capacidad)
 
 class Vagon:
     def __init__(self, id, capacidad):
@@ -329,7 +332,7 @@ with open("estacion.txt") as config:
     maquinasFuera = eval(config.readline())
     for line in config:
         if line.find("Ruta") != -1:
-            ruta = line.replace("Ruta ", "")
+            ruta = line.replace("Ruta ", "").replace("\n", "")
         else:
             hora = int(line[0:2]), int(line[3:])
             trains.append(Tren(id=newTrainID, ruta=ruta, hora = hora))
@@ -343,6 +346,31 @@ def mostrar(lista):
     for i in lista:
         i.mostrar()
         print("----------------------------")
+
+#Funcion: ruta_hora
+#Entrada: lista y hora
+#Salida: rutas por hora
+#Restricciones: hora es un numero entero
+def ruta_hora(lista, hora):
+    salidas = []
+    llegadas = []
+    for tren in trains:
+        if tren.hora[0] == hora:
+            if tren.hora[1] < 10:
+                minutos = "0" + str(tren.hora[1])
+            else:
+                minutos = str(tren.hora[1])
+            ruta = tren.ruta + " " + str(tren.hora[0]) + ":" + minutos
+            if tren.enEstacion:
+                salidas.append(ruta)
+            else:
+                llegadas.append(ruta)
+    print("Salidas")
+    for hora in salidas:
+        print(hora)
+    print("Llegadas")
+    for hora in llegadas:
+        print(hora)
 
 
 #Funcion: rutas_loop
@@ -423,10 +451,11 @@ def formar_tren(tren):
         temp = temp.next
         pos += largoTren
 
+
 def diccionario_trenes (trains):
     dicc = {}
     for train in trains:
-        clave = train.ruta[:-1] + " - " + str(train.hora[0]) + ":" + str(train.hora[1])
+        clave = train.ruta + " - " + str(train.hora[0]) + ":" + str(train.hora[1])
         if train.hora[1] == 0:
             clave += "0"
         dicc[clave] = train
@@ -445,7 +474,26 @@ def refresh ():
     
 """__________________________________________________________________________"""
 
-trains2["TEC-Alajuela - 13:00"].optimizar(5)
+trains2["TEC-Cartago - 15:00"].optimizar(75)
+trains2["TEC-Cartago - 15:00"].mostrar()
+
+#Funcion: timer
+#Entrada: ninguna
+#Salida: ejecuta las acciones de los trenes de acuerdo a la hora
+#Restricciones: ninguna
+def timer():
+    while True:
+        hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
+        trains_copy = trains[:]
+        for tren in trains_copy:
+            if tren.enEstacion == True and (hora[0] > tren.hora[0] or (hora[0] == tren.hora[0] and hora[1] > tren.hora[1])): #Elimina los trenes que ya pasaron
+                trains.remove(tren)
+
+            elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
+                tren.llegar()
+        time.sleep(1)
+"""__________________________________________________________________________"""
+
 
 #Crear ventana 
 ventana = Tk()
@@ -493,6 +541,15 @@ reloj.place(relx=0.5, rely= 0.075, anchor=CENTER)
 
 tiempo = Thread(target=animacion, args=())
 tiempo.start()
+
+hiloTimer = Thread(target=timer, args=())
+hiloTimer.start()
+
+
+#Pruebas
+#mostrar(vagonesLibres)
+#mostrar(trains)
+ruta_hora(trains, 23)
 
 ventana.mainloop()
 

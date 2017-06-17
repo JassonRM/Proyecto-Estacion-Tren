@@ -1,4 +1,4 @@
-[Vagon(id = 100, capacidad = 20), Vagon(id = 101, capacidad = 15), Vagon(id = 102, capacidad = 10), Vagon(id = 103, capacidad = 30)] #VagonesLibres
+﻿[Vagon(id = 100, capacidad = 20), Vagon(id = 101, capacidad = 15), Vagon(id = 102, capacidad = 10), Vagon(id = 103, capacidad = 30)] #VagonesLibres
 [Maquina(id=10, capacidad = 5), Maquina(id=11, capacidad = 3)] #MaquinasLibres
 [Vagon(id = 150, capacidad = 20), Vagon(id = 151, capacidad = 15), Vagon(id = 152, capacidad = 10), Vagon(id = 153, capacidad = 30), Vagon(id = 154, capacidad = 20), Vagon(id = 155, capacidad = 15), Vagon(id = 156, capacidad = 10), Vagon(id = 157, capacidad = 30)] #VagonesLibres
 [Maquina(id=20, capacidad = 6), Maquina(id=21, capacidad = 3), Maquina(id=22, capacidad = 4), Maquina(id=23, capacidad = 5), Maquina(id=24, capacidad = 6), Maquina(id=25, capacidad = 6), Maquina(id=26, capacidad = 3), Maquina(id=27, capacidad = 4), Maquina(id=28, capacidad = 5), Maquina(id=29, capacidad = 6)] #MaquinasLibres
@@ -6,13 +6,14 @@ Ruta TEC-Alajuela
 07:00
 11:00
 15:00
-19:00
-23:30
+21:00
+23:00
 Ruta Alajuela-TEC
 05:00
 09:00
-13:00
-17:00
+16:01
+15:36
+15:34
 Ruta Cartago-TEC
 06:00
 07:30
@@ -23,7 +24,8 @@ Ruta TEC-Cartago
 08:30
 15:00
 17:00
-Ruta TEC-San José
+Ruta TEC-San Jose
 07:15
 15:45
 18:20
+14:00

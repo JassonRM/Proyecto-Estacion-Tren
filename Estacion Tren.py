@@ -325,7 +325,7 @@ newTrainID = 0
 enEjecucion = True
 
 #Lectura de archivo de configuracion
-with open("estacion.txt") as config:
+with open("estacion.txt",encoding='utf-8-sig') as config:
     vagonesLibres = eval(config.readline())
     maquinasLibres = eval(config.readline())
     vagonesFuera = eval(config.readline())
@@ -445,7 +445,6 @@ def checked(lista):
     
 def armar_loop():
     ventana.withdraw()
-    #Crea la ventana
     armar = Toplevel()
     armar.minsize(windowWidth, windowHeight)
     c_armar = Canvas(armar)
@@ -464,29 +463,48 @@ def armar_loop():
 
     check = Button(c_armar,text = "e",command =lambda variables = variables:checked(variables))
     check.place(x= 0,y=0)
-
+    
     armar.mainloop()
 
-def animacion():
+    
+#Funcion: actualizar_hora
+#Entradas: ninguna
+#Salidas: actualiza la hora en pantalla
+#Restricciones ninguna
+def actualizar_hora():
     while enEjecucion:
-        hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
+        hora = str(time.asctime())[10:-4] + "/" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
         reloj.config(text=hora)
-        time.sleep(1)
+        #time.sleep(1)
 
-def formar_tren(tren):
-    temp = tren.head
-    imagenMaquina = cargarImagen("maquina.png", 0.5)
-    c_ventana.create_image(100, 600, image = imagenMaquina)
-    pos = 235
-    largoTren = 135
+#Funcion: animacion_llegada
+#Entradas: cantidad de vagones
+#salidas: lleva a cabbo la animacion de llegada de los trenes
+#Restricciones: cantidad entera
+def animacion_llegada(cantidad):
+    if cantidad == 0:
+        return None
+    c_ventana.maquina = cargarImagen("maquina.png",0.5) 
     c_ventana.vagon = cargarImagen("vagon.png",0.5)
-    while temp != None:
-        c_ventana.create_image(pos,600,image = c_ventana.vagon)
-        c_ventana.update()
-        temp = temp.next
-        pos += largoTren
+    pos = 680
+    v = [[c_ventana.create_image(windowWidth,640,image = c_ventana.maquina, tags = "p",anchor = W),windowWidth]]
+            
+    for ele in range(cantidad):
+        v += [[c_ventana.create_image(windowWidth+pos,640,image = c_ventana.vagon, tags = "p",anchor = W),windowWidth + pos]]
+        pos += 680
 
-
+    while v[-1][1] + 680> 0: 
+        c_ventana.move("p",-5,0)
+        v[-1][1] -= 5
+        time.sleep(0.001)
+    for ele in v:
+        c_ventana.delete(ele[0])
+    return None
+        
+#Funcion: Diccionario Trenes
+#Entradas: lista de trenes
+#Salida: diccionario de trenes con su ruta asiociada
+#Restricciones: lista de instancias del objeto Tren
 def diccionario_trenes (trains):
     dicc = {}
     for train in trains:
@@ -496,17 +514,20 @@ def diccionario_trenes (trains):
         dicc[clave] = train
     return dicc
 
-trains2 = diccionario_trenes(trains)
-    
+#Funcion: Refresh
+#Entradas: ninguna
+#Salidas: Actualiza el menu de trenes segun la hora
+#Restricciones: ninguna
 def refresh ():
     global menu
     menu["menu"].delete(0,'end')
     tren_menu.set("RUTAS")
     for train in trains2:
-        if trains2[train].get_hora()[0] == datetime.datetime.now().hour:
+        if trains2[train].ruta[:3] == "TEC" and trains2[train].get_hora()[0] == datetime.datetime.now().hour:
             menu["menu"].add_command(label=train, command = lambda frase = train : tren_menu.set(frase))
-  
-    
+
+trains2 = diccionario_trenes(trains)
+
 """__________________________________________________________________________"""
 
 #Funcion: timer
@@ -522,9 +543,12 @@ def timer():
                 trains.remove(tren)
 
             elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
-                tren.llegar()
-        time.sleep(1)
+                animacion_llegada(tren.carga)
+        #time.sleep(1)
 """__________________________________________________________________________"""
+
+#trains2["Alajuela-TEC - 16:01"].optimizar(5)
+
 #Funcion: cerrar
 #Entrada: ninguna
 #Salida: termina todos los procesos
@@ -544,7 +568,7 @@ ventana.title("Estación TEC")
 
 #Crear canvas
 c_ventana = Canvas(ventana)
-c_ventana.pack(fill=BOTH, expand=True)
+c_ventana.pack(expand = True, fill = BOTH)
 
 #Imagenes botones
 botonSettings = cargarImagen("boton settings.png",0.15)
@@ -569,7 +593,7 @@ menu = OptionMenu(c_ventana,tren_menu,None)
 refresh()
 menu.config(bg = "#6fc5cb", relief = FLAT,highlightbackground = "#6fc5cb", font = (font, bfSize))
 menu["menu"].config(bg = "WHITE",relief = FLAT,font = (font, bfSize))
-menu.place(relx=0.18, rely=0.04)
+menu.place(relx=0.16, rely=0.16)
 
 
 #Hora
@@ -578,13 +602,13 @@ hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[
 reloj = Label(c_ventana, text=hora, bg="#6fc5cb", font=(font, 30))
 reloj.place(relx=0.5, rely= 0.075, anchor=CENTER)
 
-tiempo = Thread(target=animacion, args=())
+tiempo = Thread(target=actualizar_hora, args=())
 tiempo.start()
 
 hiloTimer = Thread(target=timer, args=())
 hiloTimer.start()
 
-
+#formar_tren(trains2["Alajuela-TEC - 15:16"],600)
 #Pruebas
 #mostrar(vagonesLibres)
 #mostrar(trains)

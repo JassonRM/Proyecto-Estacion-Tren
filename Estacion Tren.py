@@ -37,7 +37,7 @@ def cargarSonido(nombre):
 #Entradas: imagen, ancho y altura
 #Salida: imagen reescalada
 #Restricciones: imagen de tipo pygame, ancho y altura son enteros
-def scale_img(image,width,height):    
+def scale_img(image,width,height):
     image = pygame.transform.smoothscale(image,(width,height))
     return PhotoImage(image)
 
@@ -74,8 +74,8 @@ class Tren:
     #Restricciones: demanda es un entero positivo
     def optimizar(self, demanda):
         if self.enEstacion:
-            listaVagones = vagonesLibres
-            listaMaquinas = maquinasLibres
+            listaVagones = vagonesLibres[:]
+            listaMaquinas = maquinasLibres[:]
         else:
             listaVagones = vagonesFuera
             listaMaquinas = maquinasFuera
@@ -209,7 +209,7 @@ class Tren:
                     vagonesLibres.remove(vagon)
                     break
         elif self.maquina == None:
-            print("No hay máquina asignada") 
+            print("No hay máquina asignada")
         else:
             print("Capacidad de la máquina alcanzada")
 
@@ -221,7 +221,7 @@ class Tren:
         global vagonesLibres
         if pos < 0 or pos > self.carga -1:
             print("Índice fuera de rango")
-                
+
         elif self.maquina != None and self.carga != self.maquina.capacidad and self.carga > 0 :
             if pos == 0:
                 temp = self.head
@@ -238,7 +238,7 @@ class Tren:
                 self.tail = temp.prev
                 temp.prev = None
                 self.tail.next = None
-                
+
             else:
                 temp = self.head
                 cont = 0
@@ -252,15 +252,22 @@ class Tren:
                     else:
                         temp = temp.next
                         cont += 1
-            vagonesLibres += [temp]
+            vagonesLibres.append(temp)
             self.carga -= 1
-                    
+
         elif self.maquina == None:
             print("No hay máquina asignada")
         elif self.carga == 0:
             print("No hay vagones asignados")
         else:
             print("Capacidad de la máquina alcanzada")
+    #Metodo: quitarTodos
+    #Entrada: ninguna
+    #Salida: elimina todos los vagones y maquinas del tren
+    #Restricciones: ninguna
+    def quitarTodos(self):
+        for vagon in range(self.carga):
+            self.quitarVagon(0)
 
     #Metodo: salir
     #Entrada: ninguna
@@ -298,9 +305,10 @@ class Tren:
         print("Ruta: ", self.ruta)
         print("Hora: ", self.hora)
         print("Estacion: ", self.enEstacion)
-        if self.maquina != None and self.head != None:
+        if self.maquina != None:
             print("Maquina: ")
             self.maquina.mostrar()
+        if self.maquina != None and self.head != None:
             temp = self.head
             print("Vagones")
             while temp != None:
@@ -314,12 +322,6 @@ class Maquina:
 
     def mostrar(self):
         print("ID: ", self.id, " Capacidad: ", self.capacidad)
-
-    def asignar(self, pantalla, posicion, tren):
-        datos = "ID: " + str(self.id) + "   Capacidad: " + str(self.capacidad) + " vagones"
-        pantalla.create_text(windowWidth * 2 // 3, posicion, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=E)
-        boton = Button(pantalla, text="Asignar", command=tren.asignarMaquina(self.id))
-        boton.place(x = windowWidth * 2 / 3 + 20, y = posicion, anchor = W)
 
 class Vagon:
     def __init__(self, id, capacidad):
@@ -441,7 +443,7 @@ def rutas_loop():
 
     #Titulo de la pantalla
     c_rutas.create_text(windowWidth // 2, posicionTextos/2 , text="RUTAS DE HOY", font=(font, int(aumento/2), "bold"), fill="#000000")
-    
+
     for texto in textos:
         c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, int(aumento/3)), anchor=N, fill="#000000")
         posicionTextos += aumento
@@ -455,50 +457,90 @@ def checked(lista):
         if ele.get() != 0:
             resultado.append(ele.get())
     print(resultado)
-    
+
 def armar_loop():
     ventana.withdraw()
-    #Crea la ventana
+    # Crea la ventana
     armar = Toplevel()
     armar.minsize(windowWidth, windowHeight)
-    c_armar = Canvas(armar)
-    c_armar.pack(fill=BOTH, expand=True)
 
-    #Carga el fondo
-    fondo = cargarImagen("fondo.png",1)
-    c_armar.create_image(0,0,image = fondo,anchor = NW)
+    def armar1():
+        c_armar = Canvas(armar)
+        c_armar.pack(fill=BOTH, expand=True)
 
-    #Funcion de volver
-    def salirArmar():
-        armar.destroy()
-        ventana.deiconify()
+        #Carga el fondo
+        fondo = cargarImagen("fondo.png",1)
+        c_armar.create_image(0,0,image = fondo,anchor = NW)
 
-    # Boton volver
-    backButton = cargarImagen("back button.png", 0.1)
-    botonVolver = Button(c_armar, image=backButton, command=salirArmar, bg="#000000")
-    botonVolver.place(relx=0.05, rely=0.05)
+        #Funcion de volver
+        def salirArmar():
+            armar.destroy()
+            ventana.deiconify()
 
-    #Titulo de la pantalla
-    c_armar.create_text(windowWidth // 2, 70 , text="Asignación de vagones", font=(font, int((windowHeight - 140)/20), "bold"), fill="#000000")
+        # Boton volver
+        backButton = cargarImagen("back button.png", 0.1)
+        botonVolver = Button(c_armar, image=backButton, command=salirArmar, bg="#000000")
+        botonVolver.place(relx=0.05, rely=0.05)
 
-    tren.mostrar()
+        #Bototnes asignar
+        def asignar(id):
+            tren.asignarMaquina(id)
+            c_armar.destroy()
+            armar2()
 
-    pos = 140
-    botones = []
-    for maquina in maquinasLibres:
-        datos = "ID: " + str(maquina.id) + "   Capacidad: " + str(maquina.capacidad) + " vagones"
-        c_armar.create_text(windowWidth * 2 // 3, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=E)
-        boton = Button(c_armar, text="Asignar", command=lambda: tren.asignarMaquina(maquina.id))
-        botones.append(boton)
-        pos += 140 #(windowHeight - 140) // len(maquinasLibres)
+        #Titulo de la pantalla
+        c_armar.create_text(windowWidth // 2, 70 , text="Asignación de máquina", font=(font, int((windowHeight - 140)/20), "bold"), fill="#000000")
 
+        pos = 140
+        for maquina in maquinasLibres:
+            datos = "ID: " + str(maquina.id) + "   Capacidad: " + str(maquina.capacidad) + " vagones"
+            c_armar.create_text(windowWidth * 2 // 3, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=E)
+            boton = Button(c_armar, text="Asignar", command=lambda: asignar(maquina.id))
+            boton.place(x=windowWidth * 2 / 3 + 40, y=pos, anchor=W)
+            pos += 140 #(windowHeight - 140) // len(maquinasLibres)
 
-    pos= 140
-    for boton in botones:
-        boton.place(x = windowWidth * 2 / 3 + 20, y = pos, anchor = W)
-        pos += 140 #(windowHeight - 140) // len(maquinasLibres)
+        armar.mainloop()
 
-    armar.mainloop()
+    def armar2():
+        c_armar = Canvas(armar)
+        c_armar.pack(fill=BOTH, expand=True)
+
+        # Carga el fondo
+        fondo = cargarImagen("fondo.png", 1)
+        c_armar.create_image(0, 0, image=fondo, anchor=NW)
+
+        # Funcion de volver
+        def salirArmar():
+            tren.quitarTodos()
+            c_armar.destroy()
+            armar1()
+
+        # Boton volver
+        backButton = cargarImagen("back button.png", 0.1)
+        botonVolver = Button(c_armar, image=backButton, command=salirArmar, bg="#000000")
+        botonVolver.place(relx=0.05, rely=0.05)
+
+        # Botones asignar
+        #def asignar(id):
+            #Lo que hace al apretar el boton
+
+        # Titulo de la pantalla
+        c_armar.create_text(windowWidth // 2, 70, text="Asignación de vagones", font=(font, int((windowHeight - 140) / 20), "bold"), fill="#000000")
+        pos = 140
+        for vagon in vagonesLibres:
+            datos = "ID: " + str(vagon.id) + "   Capacidad: " + str(vagon.capacidad) + " personas"
+            c_armar.create_text(windowWidth * 2 // 3, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=E)
+            boton = Button(c_armar, text="Enganchar al inicio", command=lambda: tren.asignarMaquina(maquina.id))
+            boton.place(x=windowWidth * 2 / 3 + 40, y=pos, anchor=W)
+            boton2 = Button(c_armar, text="Enganchar en la posición", command=lambda: tren.asignarMaquina(maquina.id))
+            boton2.place(x=windowWidth * 2 / 3 + 220, y=pos, anchor=W)
+            boton3 = Button(c_armar, text="Enganchar al final", command=lambda: tren.asignarMaquina(maquina.id))
+            boton3.place(x=windowWidth * 2 / 3 + 420, y=pos, anchor=W)
+            pos += 140  # (windowHeight - 140) // len(maquinasLibres)
+
+        armar.mainloop()
+
+    armar1()
 
 def animacion():
     while enEjecucion:
@@ -519,27 +561,13 @@ def formar_tren(tren):
         temp = temp.next
         pos += largoTren
 
-
-'''def diccionario_trenes (trains):
-    dicc = {}
-    for train in trains:
-        clave = train.ruta + " - " + str(train.hora[0]) + ":" + str(train.hora[1])
-        if train.hora[1] == 0:
-            clave += "0"
-        dicc[clave] = train
-    return dicc
-
-trains2 = diccionario_trenes(trains)
-'''
+#Declara el tren en uso
 tren = None
 
 def refresh ():
     global menu
     menu["menu"].delete(0,'end')
     tren_menu.set("RUTAS")
-    '''for train in trains2:
-        if trains2[train].get_hora()[0] == datetime.datetime.now().hour:
-            menu["menu"].add_command(label=train, command = lambda frase = train : tren_menu.set(frase))'''
 
     def seleccion(objeto):
         global tren
@@ -548,9 +576,8 @@ def refresh ():
 
     for train in trains:
         if train.get_hora()[0] == datetime.datetime.now().hour:
-            menu["menu"].add_command(label=train, command = seleccion(train))
-  
-    
+            menu["menu"].add_command(label=train, command=lambda tren = train: seleccion(tren))
+
 """__________________________________________________________________________"""
 
 #Funcion: timer
@@ -578,7 +605,7 @@ def cerrar():
     enEjecucion = False
     ventana.destroy()
 
-#Crear ventana 
+#Crear ventana
 ventana = Tk()
 windowWidth = ventana.winfo_screenwidth()
 windowHeight = windowWidth * 9 // 16
@@ -623,12 +650,13 @@ hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[
 reloj = Label(c_ventana, text=hora, bg="#6fc5cb", font=(font, 30))
 reloj.place(relx=0.5, rely= 0.075, anchor=CENTER)
 
+#Inicia el hilo del reloj
 tiempo = Thread(target=animacion, args=())
 tiempo.start()
 
+#Inicia el hilo de llegadas
 hiloTimer = Thread(target=timer, args=())
 hiloTimer.start()
-
 
 ventana.protocol("WM_DELETE_WINDOW", cerrar)
 ventana.mainloop()

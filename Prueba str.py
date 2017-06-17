@@ -1,11 +1,21 @@
-class Perro:
-    def __init__(self, nombre, id):
-        self.nombre = nombre
-        self.id = id
+from tkinter import *
 
-    def __str__(self):
-        return self.nombre
+master = Tk()
 
-x = Perro("Boby", 52135)
+var = StringVar(master)
+var.set("one") # initial value
 
-        
+option = OptionMenu(master, var, "one", "two", "three", "four")
+option.pack()
+
+#
+# test stuff
+
+def ok():
+    print("value is", var.get())
+    master.quit()
+
+button = Button(master, text="OK", command=ok)
+button.pack()
+
+mainloop()

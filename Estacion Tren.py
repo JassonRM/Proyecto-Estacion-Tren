@@ -17,7 +17,6 @@ from PIL import Image, ImageTk
 #Entrada: nombre
 #Salida: imagen
 #Restricciones: el archivo debe estar contenido en la carpeta Imagenes
-
 def cargarImagen(nombre,tamaño):
     ruta = os.path.join("Imagenes", nombre)
     imagen = Image.open(ruta)
@@ -58,6 +57,13 @@ class Tren:
             self.enEstacion = True
         else:
             self.enEstacion = False
+
+    def __str__(self):
+        if self.hora[1] < 10:
+            minutos = "0" + str(self.hora[1])
+        else:
+            minutos = str(self.hora[1])
+        return str(self.ruta) + " - " + str(self.hora[0]) + ":" + minutos
 
     def get_hora(self):
         return self.hora
@@ -245,7 +251,7 @@ class Tren:
                         break
                     else:
                         temp = temp.next
-                        connt += 1
+                        cont += 1
             vagonesLibres += [temp]
             self.carga -= 1
                     
@@ -309,6 +315,12 @@ class Maquina:
     def mostrar(self):
         print("ID: ", self.id, " Capacidad: ", self.capacidad)
 
+    def asignar(self, pantalla, posicion, tren):
+        datos = "ID: " + str(self.id) + "   Capacidad: " + str(self.capacidad) + " vagones"
+        pantalla.create_text(windowWidth * 2 // 3, posicion, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=E)
+        boton = Button(pantalla, text="Asignar", command=tren.asignarMaquina(self.id))
+        boton.place(x = windowWidth * 2 / 3 + 20, y = posicion, anchor = W)
+
 class Vagon:
     def __init__(self, id, capacidad):
         self.id = id
@@ -318,7 +330,6 @@ class Vagon:
 
     def mostrar(self):
         print("ID: ", self.id, " Capacidad: ", self.capacidad)
-
 
 trains = []
 newTrainID = 0
@@ -388,7 +399,7 @@ def rutas_loop():
     c_rutas.pack(fill=BOTH, expand=True)
 
     #Carga el fondo
-    fondo = cargarImagen("fondo claro.png",1)
+    fondo = cargarImagen("fondo.png",1)
     c_rutas.create_image(0,0,image = fondo,anchor = NW)
 
     #Funcion de volver
@@ -423,10 +434,12 @@ def rutas_loop():
         horas += str(tren.hora[0]) + ":" + minutos + " "
 
     textos.append(horas)
-    
+
+    #Posiciones de los textos
     posicionTextos = 140
     aumento = (windowHeight - 140) // len(textos)
 
+    #Titulo de la pantalla
     c_rutas.create_text(windowWidth // 2, posicionTextos/2 , text="RUTAS DE HOY", font=(font, int(aumento/2), "bold"), fill="#000000")
     
     for texto in textos:
@@ -450,20 +463,40 @@ def armar_loop():
     armar.minsize(windowWidth, windowHeight)
     c_armar = Canvas(armar)
     c_armar.pack(fill=BOTH, expand=True)
-    datos = []
-    
-    for vagon in vagonesLibres:
-        datos += [("ID: " + str(vagon.id) + " Capacidad: " + str(vagon.capacidad) , vagon)]
 
-    variables = []
-    for dato in datos:
-        var = IntVar()
-        check = Checkbutton(c_armar, text = dato[0], variable = var,onvalue = dato[1].id, offvalue = None)
-        check.pack()
-        variables.append(var)
+    #Carga el fondo
+    fondo = cargarImagen("fondo.png",1)
+    c_armar.create_image(0,0,image = fondo,anchor = NW)
 
-    check = Button(c_armar,text = "e",command =lambda variables = variables:checked(variables))
-    check.place(x= 0,y=0)
+    #Funcion de volver
+    def salirArmar():
+        armar.destroy()
+        ventana.deiconify()
+
+    # Boton volver
+    backButton = cargarImagen("back button.png", 0.1)
+    botonVolver = Button(c_armar, image=backButton, command=salirArmar, bg="#000000")
+    botonVolver.place(relx=0.05, rely=0.05)
+
+    #Titulo de la pantalla
+    c_armar.create_text(windowWidth // 2, 70 , text="Asignación de vagones", font=(font, int((windowHeight - 140)/20), "bold"), fill="#000000")
+
+    tren.mostrar()
+
+    pos = 140
+    botones = []
+    for maquina in maquinasLibres:
+        datos = "ID: " + str(maquina.id) + "   Capacidad: " + str(maquina.capacidad) + " vagones"
+        c_armar.create_text(windowWidth * 2 // 3, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=E)
+        boton = Button(c_armar, text="Asignar", command=lambda: tren.asignarMaquina(maquina.id))
+        botones.append(boton)
+        pos += 140 #(windowHeight - 140) // len(maquinasLibres)
+
+
+    pos= 140
+    for boton in botones:
+        boton.place(x = windowWidth * 2 / 3 + 20, y = pos, anchor = W)
+        pos += 140 #(windowHeight - 140) // len(maquinasLibres)
 
     armar.mainloop()
 
@@ -487,7 +520,7 @@ def formar_tren(tren):
         pos += largoTren
 
 
-def diccionario_trenes (trains):
+'''def diccionario_trenes (trains):
     dicc = {}
     for train in trains:
         clave = train.ruta + " - " + str(train.hora[0]) + ":" + str(train.hora[1])
@@ -497,14 +530,25 @@ def diccionario_trenes (trains):
     return dicc
 
 trains2 = diccionario_trenes(trains)
-    
+'''
+tren = None
+
 def refresh ():
     global menu
     menu["menu"].delete(0,'end')
     tren_menu.set("RUTAS")
-    for train in trains2:
+    '''for train in trains2:
         if trains2[train].get_hora()[0] == datetime.datetime.now().hour:
-            menu["menu"].add_command(label=train, command = lambda frase = train : tren_menu.set(frase))
+            menu["menu"].add_command(label=train, command = lambda frase = train : tren_menu.set(frase))'''
+
+    def seleccion(objeto):
+        global tren
+        tren = objeto
+        tren_menu.set(objeto)
+
+    for train in trains:
+        if train.get_hora()[0] == datetime.datetime.now().hour:
+            menu["menu"].add_command(label=train, command = seleccion(train))
   
     
 """__________________________________________________________________________"""
@@ -563,13 +607,14 @@ boton_rutas.place(relx=0.005, rely=0.01)
 boton_vagon = Button(ventana, image=botonSettings, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.005, rely=0.125)
 
+#Crea el menu
 tren_menu = StringVar(c_ventana)
 tren_menu.set("RUTAS")
 menu = OptionMenu(c_ventana,tren_menu,None)
 refresh()
 menu.config(bg = "#6fc5cb", relief = FLAT,highlightbackground = "#6fc5cb", font = (font, bfSize))
 menu["menu"].config(bg = "WHITE",relief = FLAT,font = (font, bfSize))
-menu.place(relx=0.18, rely=0.04)
+menu.place(relx=0.8, rely=0.04)
 
 
 #Hora
@@ -585,11 +630,6 @@ hiloTimer = Thread(target=timer, args=())
 hiloTimer.start()
 
 
-#Pruebas
-#mostrar(vagonesLibres)
-#mostrar(trains)
-#ruta_hora(trains, 23)
 ventana.protocol("WM_DELETE_WINDOW", cerrar)
-
 ventana.mainloop()
 

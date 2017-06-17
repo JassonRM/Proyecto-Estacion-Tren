@@ -451,13 +451,6 @@ def rutas_loop():
 
     rutas.mainloop()
 
-def checked(lista):
-    resultado = []
-    for ele in lista:
-        if ele.get() != 0:
-            resultado.append(ele.get())
-    print(resultado)
-
 def armar_loop():
     ventana.withdraw()
 
@@ -576,20 +569,10 @@ def animacion_llegada(cantidad):
     for ele in v:
         c_ventana.delete(ele[0])
     return None
-        
-#Funcion: Diccionario Trenes
-#Entradas: lista de trenes
-#Salida: diccionario de trenes con su ruta asiociada
-#Restricciones: lista de instancias del objeto Tren
-def diccionario_trenes (trains):
-    dicc = {}
-    for train in trains:
-        clave = train.ruta + " - " + str(train.hora[0]) + ":" + str(train.hora[1])
-        if train.hora[1] == 0:
-            clave += "0"
-        dicc[clave] = train
-    return dicc
 
+#Declara el tren en uso
+tren = None
+        
 #Funcion: Refresh
 #Entradas: ninguna
 #Salidas: Actualiza el menu de trenes segun la hora
@@ -607,11 +590,6 @@ def refresh ():
     for train in trains:
         if train.get_hora()[0] == datetime.datetime.now().hour:
             menu["menu"].add_command(label=train, command=lambda tren = train: seleccion(tren))
-
-
-#Declara el tren en uso
-tren = None
-trains2 = diccionario_trenes(trains)
 
 """__________________________________________________________________________"""
 
@@ -631,8 +609,6 @@ def timer():
                 animacion_llegada(3)
         #time.sleep(1)
 """__________________________________________________________________________"""
-
-#trains2["Alajuela-TEC - 16:01"].optimizar(5)
 
 #Funcion: cerrar
 #Entrada: ninguna

@@ -19,6 +19,7 @@ Ruta Cartago-TEC
 07:30
 12:00
 14:30
+16:37
 Ruta TEC-Cartago
 06:30
 08:30
@@ -27,5 +28,6 @@ Ruta TEC-Cartago
 Ruta TEC-San Jose
 07:15
 15:45
+16:45
 18:20
 14:00

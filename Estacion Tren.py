@@ -544,7 +544,7 @@ def actualizar_hora():
     while enEjecucion:
         hora = str(time.asctime())[10:-4] + "/" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
         reloj.config(text=hora)
-        #time.sleep(1)
+        time.sleep(1)
 
 #Funcion: animacion_llegada
 #Entradas: cantidad de vagones
@@ -607,7 +607,7 @@ def timer():
 
             elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
                 animacion_llegada(3)
-        #time.sleep(1)
+        time.sleep(1)
 """__________________________________________________________________________"""
 
 #Funcion: cerrar

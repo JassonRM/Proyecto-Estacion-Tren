@@ -598,27 +598,20 @@ def refresh ():
     global menu
     menu["menu"].delete(0,'end')
     tren_menu.set("RUTAS")
-    
-    for train in trains2:
-        if trains2[train].ruta[:3] == "TEC" and trains2[train].get_hora()[0] == datetime.datetime.now().hour:
-            menu["menu"].add_command(label=train, command = lambda frase = train : tren_menu.set(frase))
 
-trains2 = diccionario_trenes(trains)
-
-#Declara el tren en uso
-tren = None
-
-
-
-def seleccion(objeto):
-    global tren
-    tren = objeto
-    tren_menu.set(objeto)
+    def seleccion(objeto):
+        global tren
+        tren = objeto
+        tren_menu.set(objeto)
 
     for train in trains:
         if train.get_hora()[0] == datetime.datetime.now().hour:
             menu["menu"].add_command(label=train, command=lambda tren = train: seleccion(tren))
 
+
+#Declara el tren en uso
+tren = None
+trains2 = diccionario_trenes(trains)
 
 """__________________________________________________________________________"""
 

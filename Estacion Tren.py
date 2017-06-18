@@ -239,7 +239,7 @@ class Tren:
                     self.tail = None
                     self.head = None
 
-            elif pos == self.carga:
+            elif pos == self.carga - 1:
                 temp = self.tail
                 self.tail = temp.prev
                 temp.prev = None
@@ -537,8 +537,16 @@ def armar_loop():
             botonQuitar = cargarImagen("boton quitar.png", 0.08)
 
             # Botones asignar
+            def engancharInicio(id):
+                tren.engancharInicio(id)
+                c_armar.destroy()
+                armar2()
             def engancharMedio(id, pos):
                 tren.engancharMedio(id, int(pos))
+                c_armar.destroy()
+                armar2()
+            def engancharFinal(id):
+                tren.engancharFinal(id)
                 c_armar.destroy()
                 armar2()
             def quitarVagon(pos):
@@ -578,11 +586,11 @@ def armar_loop():
 
                 #Botones
                 c_armar.create_text(windowWidth * 12 // 100, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=W)
-                boton = Button(c_armar, image=botonInicio, command=lambda: tren.asignarMaquina(maquina.id), bg="#313139", relief=FLAT)#Arreglar comando
+                boton = Button(c_armar, image=botonInicio, command=lambda vagon=vagon: engancharInicio(vagon.id), bg="#313139", relief=FLAT)#Arreglar comando
                 boton.place(relx= 0.6, y=pos, anchor=W)
                 boton2 = Button(c_armar, image=botonMedio, command=lambda vagon=vagon, varPos=varPos: engancharMedio(vagon.id, varPos.get()), bg="#313139", relief=FLAT)#Arreglar comando
                 boton2.place(relx= 0.71, y=pos, anchor=W)
-                boton3 = Button(c_armar, image=botonFinal, command=lambda: tren.asignarMaquina(maquina.id), bg="#313139", relief=FLAT)#Arreglar comando
+                boton3 = Button(c_armar, image=botonFinal, command=lambda vagon=vagon: engancharInicio(vagon.id), bg="#313139", relief=FLAT)#Arreglar comando
                 boton3.place(relx= 0.88, y=pos, anchor=W)
 
                 pos += 140  # (windowHeight - 140) // len(maquinasLibres)

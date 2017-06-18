@@ -625,8 +625,6 @@ def armar_loop():
                 boton3 = Button(c_armar, image=botonFinal, command=lambda vagon=vagon: engancharInicio(vagon.id), bg="#313139", relief=FLAT)#Arreglar comando
                 boton3.place(relx= 0.83, y=pos, anchor=W)
 
-
-                pos += 140  # (windowHeight - 140) // len(maquinasLibres)
                 pos += aumento
                 if pos > windowHeight - 200:
                     break

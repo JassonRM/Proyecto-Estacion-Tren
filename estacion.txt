@@ -3,15 +3,13 @@
 [Vagon(id = 150, capacidad = 20), Vagon(id = 151, capacidad = 15), Vagon(id = 152, capacidad = 10), Vagon(id = 153, capacidad = 30), Vagon(id = 154, capacidad = 20), Vagon(id = 155, capacidad = 15), Vagon(id = 156, capacidad = 10), Vagon(id = 157, capacidad = 30)] #VagonesLibres
 [Maquina(id=20, capacidad = 6), Maquina(id=21, capacidad = 3), Maquina(id=22, capacidad = 4), Maquina(id=23, capacidad = 5), Maquina(id=24, capacidad = 6), Maquina(id=25, capacidad = 6), Maquina(id=26, capacidad = 3), Maquina(id=27, capacidad = 4), Maquina(id=28, capacidad = 5), Maquina(id=29, capacidad = 6)] #MaquinasLibres
 Ruta TEC-Alajuela
-01:00
+03:00
 07:00
 11:00
 15:00
 23:30
 Ruta Alajuela-TEC
-02:30
-02:32
-02:35
+06:30
 09:00
 16:01
 23:40

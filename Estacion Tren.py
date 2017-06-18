@@ -423,10 +423,6 @@ def rutas_loop():
     botonVolver = Button(c_rutas, image=backButton, command=salirRutas, bg="#313139", relief=FLAT)
     botonVolver.place(relx=0.05, rely=0.05)
 
-
-    #Titulo
-#    c_rutas.create_text(windowWidth//2,windowHeight//10,text = "Rutas de hoy", font = (font, 40),anchor = CENTER, fill="#FFFFFF")
-
     #Horarios
     textos = []
     ultimaRuta = trenesDia[0].ruta.replace("\n", "")
@@ -502,18 +498,25 @@ def armar_loop():
                 armar2()
 
             #Titulo de la pantalla
-            c_armar.create_text(windowWidth // 2, 70 , text="Asignación de máquina", font=(font, int((windowHeight - 140)/20), "bold"), fill="#000000")
+            c_armar.create_text(windowWidth * 0.5, 70 , text="Asignación de máquina", font=(font, int((windowHeight - 140)/20), "bold"), fill="#000000")
+            demanda = "Demanda: " + str(tren.demanda)
+            c_armar.create_text(windowWidth * 0.85, 70 , text=demanda, font=(font, int(windowHeight // 30)), fill="#000000")
 
             #Cargar boton
             botonAsignar = cargarImagen("boton asignar.png", 0.1)
-            botones = []
+
+            #Posiciones
             pos = 170
+            aumento = 140
+
             for maquina in maquinasLibres:
                 datos = "ID: " + str(maquina.id) + "   Capacidad: " + str(maquina.capacidad) + " vagones"
                 c_armar.create_text(windowWidth * 42 // 100, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=CENTER)
                 boton = (Button(c_armar, image = botonAsignar, command=lambda maquina=maquina: asignar(maquina.id), bg="#313139", relief=FLAT)) #El comando debe llevar maquina=maquina para evitar que maquina se asigne luego de que haya terminado el ciclo
                 boton.place(x=windowWidth * 67 // 96, y=pos, anchor=W)
-                pos += 140 #(windowHeight - 140) // len(maquinasLibres)
+                pos += aumento #(windowHeight - 140) // len(maquinasLibres)
+                if pos > windowHeight:
+                    break
 
             armar.bind("<Escape>", cerrar)
             armar.mainloop()
@@ -542,6 +545,7 @@ def armar_loop():
             botonMedio = cargarImagen("boton asignar pos.png", 0.118)
             botonFinal = cargarImagen("boton asignar final.png", 0.1)
             botonQuitar = cargarImagen("boton quitar.png", 0.08)
+            botonSalir = cargarImagen("boton salir.png", 0.13)
 
             # Botones asignar
             def engancharInicio(id):
@@ -558,14 +562,34 @@ def armar_loop():
                 armar2()
             def quitarVagon(pos):
                 tren.quitarVagon(pos)
-                tren.mostrar()
                 c_armar.destroy()
                 armar2()
+            def asignar():
+                if tren.demanda <= tren.capacidad:
+                    print("Vagones asignados, deberia mostrar el tren")
+                    c_armar.destroy()
+                    ventana.deiconify()
+                else:
+                    restante = tren.demanda - tren.capacidad
+                    messagebox.showwarning("Capacidad insuficiente", "Faltan " + str(restante) + " asientos para suplir la demanda")
 
 
             # Titulo de la pantalla
             c_armar.create_text(windowWidth // 2, 70, text="Asignación de vagones", font=(font, int((windowHeight - 140) / 20), "bold"), fill="#000000")
-            pos = 170
+            demanda = "Demanda: " + str(tren.demanda)
+            c_armar.create_text(windowWidth * 0.85, 70 , text=demanda, font=(font, int(windowHeight // 30)), fill="#000000")
+
+            #Posiciones
+            pos = 205
+            aumento = (windowHeight - 400) // (tren.carga + len(vagonesLibres))
+            if aumento > 100:
+                aumento = 100
+            elif aumento < 60:
+                aumento = 60
+
+            #Boton asignar
+            boton_salir = Button(c_armar, image=botonSalir, command=asignar, bg="#313139", relief=FLAT)
+            boton_salir.place(relx=0.9, y= windowHeight - 100, anchor=CENTER)
 
             #Quitar vagones
             if tren.head != None:
@@ -573,10 +597,10 @@ def armar_loop():
                 cont = 0
                 while temp != None:
                     datos = "ID: " + str(temp.id) + "  Capacidad: " + str(temp.capacidad) + " personas Posición: " + str(cont)
-                    c_armar.create_text(windowWidth * 12 // 100, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=W)
+                    c_armar.create_text(windowWidth * 0.07, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=W)
                     boton = Button(c_armar, image=botonQuitar, command=lambda posicion = cont: quitarVagon(posicion), bg="#313139", relief=FLAT) #Arreglar comando
-                    boton.place(relx= 0.825, y=pos, anchor=W)
-                    pos += 140
+                    boton.place(relx= 0.775, y=pos, anchor=W)
+                    pos += aumento
                     cont += 1
                     temp = temp.next
 
@@ -589,18 +613,22 @@ def armar_loop():
                 varPos.set("-")
                 posList = range(tren.carga + 1)
                 menuPos = OptionMenu(c_armar, varPos, *posList, command=lambda pos, varPos=varPos: varPos.set(pos)) #Necesito una varPos para cada vagon
-                menuPos.place(relx= 0.855, y=pos, anchor=CENTER)
+                menuPos.place(relx= 0.805, y=pos, anchor=CENTER)
 
                 #Botones
-                c_armar.create_text(windowWidth * 12 // 100, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=W)
+                c_armar.create_text(windowWidth * 0.07, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=W)
                 boton = Button(c_armar, image=botonInicio, command=lambda vagon=vagon: engancharInicio(vagon.id), bg="#313139", relief=FLAT)#Arreglar comando
-                boton.place(relx= 0.6, y=pos, anchor=W)
+                boton.place(relx= 0.55, y=pos, anchor=W)
                 boton2 = Button(c_armar, image=botonMedio, command=lambda vagon=vagon, varPos=varPos: engancharMedio(vagon.id, varPos.get()), bg="#313139", relief=FLAT)#Arreglar comando
-                boton2.place(relx= 0.71, y=pos, anchor=W)
+                boton2.place(relx= 0.66, y=pos, anchor=W)
                 boton3 = Button(c_armar, image=botonFinal, command=lambda vagon=vagon: engancharInicio(vagon.id), bg="#313139", relief=FLAT)#Arreglar comando
-                boton3.place(relx= 0.88, y=pos, anchor=W)
+                boton3.place(relx= 0.83, y=pos, anchor=W)
+
 
                 pos += 140  # (windowHeight - 140) // len(maquinasLibres)
+                pos += aumento
+                if pos > windowHeight - 200:
+                    break
             armar.bind("<Escape>", cerrar)
             armar.mainloop()
 
@@ -636,7 +664,7 @@ def animacion_tren(cantidad,enEstacion):
         v = [[c_ventana.create_image(0,altura,image = c_ventana.maquina, tags = "p",anchor = E),0]]
         condicion = windowWidth
     else:
-        c_ventana.maquina = cargarImagen("maquina.png",0.5) 
+        c_ventana.maquina = cargarImagen("maquina.png",0.5)
         c_ventana.vagon = cargarImagen("vagon.png",0.5)
         velocidad = -5
         pos = windowWidth*1.5
@@ -766,6 +794,7 @@ boton_vagon.place(relx=0.850, rely=0.01, anchor=NE)
 #Boton para optimizar
 boton_vagon = Button(ventana, image=botonOptimizar, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.860, rely=0.01, anchor=NW)
+
 
 #Crea el menu
 tren_menu = StringVar(c_ventana)

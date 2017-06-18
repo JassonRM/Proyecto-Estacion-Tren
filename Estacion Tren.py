@@ -802,6 +802,7 @@ def cerrar(event):
     global enEjecucion
     enEjecucion = False
     ventana.destroy()
+    sys.exit()
 
 #Ventana principal ---------------------------------------------------------
 

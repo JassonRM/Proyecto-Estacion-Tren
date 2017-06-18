@@ -78,8 +78,8 @@ class Tren:
             listaVagones = vagonesLibres[:]
             listaMaquinas = maquinasLibres[:]
         else:
-            listaVagones = vagonesFuera
-            listaMaquinas = maquinasFuera
+            listaVagones = vagonesFuera[:]
+            listaMaquinas = maquinasFuera[:]
 
         vagones = []
         while demanda > 0:

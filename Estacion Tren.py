@@ -402,7 +402,9 @@ def rutas_loop():
     ventana.withdraw()
     #Crea la ventana
     rutas = Toplevel()
-    rutas.minsize(windowWidth, windowHeight)
+    rutas.focus_force()
+    rutas.overrideredirect(True)
+    rutas.geometry("%dx%d+0+0" %(windowWidth,windowHeight))
     c_rutas = Canvas(rutas)
     c_rutas.pack(fill=BOTH, expand=True)
 
@@ -414,6 +416,7 @@ def rutas_loop():
     def salirRutas():
         rutas.destroy()
         ventana.deiconify()
+        ventana.focus_force()
 
     # Boton volver
     backButton = cargarImagen("back button.png", 0.1)
@@ -450,7 +453,7 @@ def rutas_loop():
         c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, int(aumento/3)), anchor=N, fill="#000000")
         posicionTextos += aumento
 
-
+    rutas.bind("<Escape>", cerrar)
     rutas.mainloop()
 
 #Funcion: armar_loop
@@ -465,8 +468,9 @@ def armar_loop():
 
         # Crea la ventana
         armar = Toplevel()
-        armar.minsize(windowWidth, windowHeight)
-
+        armar.overrideredirect(True)
+        armar.geometry("%dx%d+0+0" %(windowWidth,windowHeight))
+        armar.focus_force()
         def armar1():
             c_armar = Canvas(armar)
             c_armar.pack(fill=BOTH, expand=True)
@@ -479,6 +483,8 @@ def armar_loop():
             def salirArmar():
                 armar.destroy()
                 ventana.deiconify()
+                salir_tren(tren.carga)
+                ventana.focus_force()
 
             # Boton volver
             backButton = cargarImagen("back button.png", 0.1)
@@ -512,12 +518,13 @@ def armar_loop():
                 if pos > windowHeight:
                     break
 
+            armar.bind("<Escape>", cerrar)
             armar.mainloop()
 
         def armar2():
             c_armar = Canvas(armar)
             c_armar.pack(fill=BOTH, expand=True)
-
+            
             # Carga el fondo
             fondo = cargarImagen("fondo.png", 1)
             c_armar.create_image(0, 0, image=fondo, anchor=NW)
@@ -618,10 +625,12 @@ def armar_loop():
                 boton3 = Button(c_armar, image=botonFinal, command=lambda vagon=vagon: engancharInicio(vagon.id), bg="#313139", relief=FLAT)#Arreglar comando
                 boton3.place(relx= 0.83, y=pos, anchor=W)
 
+
+                pos += 140  # (windowHeight - 140) // len(maquinasLibres)
                 pos += aumento
                 if pos > windowHeight - 200:
                     break
-
+            armar.bind("<Escape>", cerrar)
             armar.mainloop()
 
         armar1()
@@ -731,7 +740,8 @@ def timer():
                 trains.remove(tren)
 
             elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
-                animacion_tren(5,False)
+                tren.llegar()
+                animacion_tren(tren.carga,False)
                 
         time.sleep(1)
 """__________________________________________________________________________"""
@@ -745,7 +755,7 @@ def salir_tren(cant):
 #Entrada: ninguna
 #Salida: termina todos los procesos
 #Restricciones: ninguna
-def cerrar():
+def cerrar(event):
     global enEjecucion
     enEjecucion = False
     ventana.destroy()
@@ -754,8 +764,8 @@ def cerrar():
 ventana = Tk()
 windowWidth = ventana.winfo_screenwidth()
 windowHeight = windowWidth * 9 // 16
-ventana.minsize(windowWidth, windowHeight)
-ventana.resizable(False,False)
+ventana.overrideredirect(True)
+ventana.geometry("%dx%d+0+0" %(windowWidth,windowHeight))
 ventana.title("Estación TEC")
 
 #Crear canvas
@@ -780,11 +790,11 @@ boton_rutas.place(relx=0.005, rely=0.01)
 
 #Boton para asignacion manual
 boton_vagon = Button(ventana, image=botonSettings, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
-boton_vagon.place(relx=0.825, rely=0.01, anchor=NE)
+boton_vagon.place(relx=0.850, rely=0.01, anchor=NE)
 
 #Boton para optimizar
 boton_vagon = Button(ventana, image=botonOptimizar, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
-boton_vagon.place(relx=0.85, rely=0.01, anchor=NW)
+boton_vagon.place(relx=0.860, rely=0.01, anchor=NW)
 
 
 #Crea el menu
@@ -794,7 +804,7 @@ menu = OptionMenu(c_ventana,tren_menu,None)
 refresh()
 menu.config(bg = "#6fc5cb", relief = FLAT,highlightbackground = "#6fc5cb", font = (font, bfSize))
 menu["menu"].config(bg = "WHITE",relief = FLAT,font = (font, bfSize))
-menu.place(relx=0.8375, rely=0.125, anchor=S)
+menu.place(relx=0.8555, rely=0.14, anchor=S)
 
 #Hora
 hora = "Hora: " + str(time.asctime())[10:-4] + "/ Fecha:" + str(time.asctime())[3:10] + str(time.asctime())[-5:]
@@ -810,6 +820,7 @@ tiempo.start()
 hiloTimer = Thread(target=timer, args=())
 hiloTimer.start()
 
-ventana.protocol("WM_DELETE_WINDOW", cerrar)
+ventana.focus_force()
+ventana.bind("<Escape>", cerrar)
 ventana.mainloop()
 

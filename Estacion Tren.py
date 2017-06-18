@@ -550,9 +550,10 @@ def armar_loop():
                 c_armar.destroy()
                 armar2()
             def engancharMedio(id, pos):
-                tren.engancharMedio(id, int(pos))
-                c_armar.destroy()
-                armar2()
+                if pos != "-":
+                    tren.engancharMedio(id, int(pos))
+                    c_armar.destroy()
+                    armar2()
             def engancharFinal(id):
                 tren.engancharFinal(id)
                 c_armar.destroy()

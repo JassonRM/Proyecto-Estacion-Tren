@@ -15,13 +15,13 @@ Ruta Alajuela-TEC
 01:45
 01:48
 Ruta Cartago-TEC
-06:00
+03:20
 07:30
 12:00
 14:30
 22:45
 Ruta TEC-Cartago
-06:30
+03:50
 08:30
 15:00
 23:00

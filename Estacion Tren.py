@@ -666,7 +666,7 @@ def animacion_tren(cantidad,enEstacion):
         return None
 
     tren = cargarSonido("tren.wav")
-    tren.play()    
+    tren.play()
 
     if enEstacion:
         c_ventana.maquina = cargarImagen("maquina.png",0.5,True) 
@@ -733,11 +733,10 @@ def refresh ():
         tren = objeto
         tren_menu.set(objeto)
 
+    hora = datetime.datetime.now()
     for train in trains:
-        if train.get_hora()[0] == datetime.datetime.now().hour and train.get_hora()[1] >= datetime.datetime.now().minute and train.enEstacion:
+        if (train.get_hora()[0] == hora.hour or (train.get_hora()[0] == hora.hour + 1 and ) and train.enEstacion:
             menu["menu"].add_command(label=train, command=lambda tren = train: seleccion(tren))
-
-"""__________________________________________________________________________"""
 
 #Funcion: timer
 #Entrada: ninguna
@@ -748,21 +747,22 @@ def timer():
         hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
         trains_copy = trains[:]
         for tren in trains_copy:
-            if tren.enEstacion == True and (hora[0] > tren.hora[0] or (hora[0] == tren.hora[0] and hora[1] > tren.hora[1])): #Elimina los trenes que ya pasaron
+            if tren.enEstacion == True and (hora[0] > tren.get_hora()[0] and hora[1] > tren.get_hora()[1]): #Elimina los trenes que pasaron hace una hora
                 trains.remove(tren)
 
-            elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
+            elif tren.enEstacion == False and hora[:2] == tren.get_hora() and hora[2] == 0: #Llega los trenes
                 tren.llegar()
                 animacion_tren(tren.carga,False)
                 
         time.sleep(1)
-"""__________________________________________________________________________"""
 
-def salir_tren(cant):
+def salir_tren(cant, optimizar=False):
+    if optimizar:
+        tren.optimizar(tren.demanda)
+        cant = tren.carga
     tren.salir()
     animacion_salir = Thread(target= animacion_tren,args = (cant,True))
     animacion_salir.start()
-
 
 #Funcion: cerrar
 #Entrada: ninguna
@@ -772,6 +772,8 @@ def cerrar(event):
     global enEjecucion
     enEjecucion = False
     ventana.destroy()
+
+#Ventana principal ---------------------------------------------------------
 
 #Crear ventana
 ventana = Tk()
@@ -806,7 +808,7 @@ boton_vagon = Button(ventana, image=botonSettings, borderwidth=0, command=armar_
 boton_vagon.place(relx=0.850, rely=0.01, anchor=NE)
 
 #Boton para optimizar
-boton_vagon = Button(ventana, image=botonOptimizar, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
+boton_vagon = Button(ventana, image=botonOptimizar, borderwidth=0, command=lambda: salir_tren(0, True))#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.860, rely=0.01, anchor=NW)
 
 #Crea el menu

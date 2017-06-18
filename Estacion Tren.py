@@ -538,7 +538,7 @@ def armar_loop():
             botonMedio = cargarImagen("boton asignar pos.png", 0.118)
             botonFinal = cargarImagen("boton asignar final.png", 0.1)
             botonQuitar = cargarImagen("boton quitar.png", 0.08)
-            botonAsignar = cargarImagen("boton asignar.png", 0.15)
+            botonSalir = cargarImagen("boton salir.png", 0.13)
 
             # Botones asignar
             def engancharInicio(id):
@@ -574,11 +574,15 @@ def armar_loop():
 
             #Posiciones
             pos = 205
-            aumento = 100
+            aumento = (windowHeight - 400) // (tren.carga + len(vagonesLibres))
+            if aumento > 100:
+                aumento = 100
+            elif aumento < 60:
+                aumento = 60
 
             #Boton asignar
-            botonSalir = Button(c_armar, image=botonAsignar, command=asignar, bg="#313139", relief=FLAT)
-            botonSalir.place(relx=0.9, y= windowHeight - 100, anchor=CENTER)
+            boton_salir = Button(c_armar, image=botonSalir, command=asignar, bg="#313139", relief=FLAT)
+            boton_salir.place(relx=0.9, y= windowHeight - 100, anchor=CENTER)
 
             #Quitar vagones
             if tren.head != None:
@@ -651,7 +655,7 @@ def animacion_tren(cantidad,enEstacion):
         v = [[c_ventana.create_image(0,altura,image = c_ventana.maquina, tags = "p",anchor = E),0]]
         condicion = windowWidth
     else:
-        c_ventana.maquina = cargarImagen("maquina.png",0.5) 
+        c_ventana.maquina = cargarImagen("maquina.png",0.5)
         c_ventana.vagon = cargarImagen("vagon.png",0.5)
         velocidad = -5
         pos = windowWidth*1.5
@@ -762,7 +766,6 @@ tamano = 0.13
 botonSettings = cargarImagen("boton settings.png",tamano)
 botonInfo = cargarImagen("boton info.png", tamano)
 botonOptimizar = cargarImagen("boton optimizar.png", tamano)
-botonSalir = cargarImagen("boton salir.png", tamano)
 font = "Courier New"
 bfSize = 16
 
@@ -782,9 +785,6 @@ boton_vagon.place(relx=0.825, rely=0.01, anchor=NE)
 boton_vagon = Button(ventana, image=botonOptimizar, borderwidth=0, command=armar_loop)#lambda:formar_tren(trains2[tren_menu.get()]), relief=FLAT)
 boton_vagon.place(relx=0.85, rely=0.01, anchor=NW)
 
-#Boton para salida del tren
-boton_salir = Button(ventana, image=botonSalir, borderwidth = 0)
-boton_salir.place(relx=0.005, rely=0.1)
 
 #Crea el menu
 tren_menu = StringVar(c_ventana)

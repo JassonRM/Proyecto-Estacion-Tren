@@ -577,12 +577,14 @@ def armar_loop():
                 armar2()
 
             def asignar():
+                global tren
                 if tren.demanda <= tren.capacidad:
                     print("Vagones asignados, deberia mostrar el tren")
                     c_armar.destroy()
                     salir_tren(tren.carga)
                     refresh()
                     ventana.deiconify()
+                    tren = None
                 else:
                     restante = tren.demanda - tren.capacidad
                     messagebox.showwarning("Capacidad insuficiente", "Faltan " + str(restante) + " asientos para suplir la demanda")
@@ -661,45 +663,74 @@ def actualizar_hora():
 #Entradas: cantidad de vagones
 #salidas: lleva a cabbo la animacion de llegada de los trenes
 #Restricciones: cantidad entera
-def animacion_tren(cantidad,enEstacion):
+def animacion_llegada(cantidad):
     if cantidad == 0:
         return None
 
     tren = cargarSonido("tren.wav")
     tren.play()    
 
-    if enEstacion:
-        c_ventana.maquina = cargarImagen("maquina.png",0.5,True) 
-        c_ventana.vagon = cargarImagen("vagon.png",0.5,True)
-        velocidad = 5
-        pos = -windowWidth*0.5
-        altura = windowHeight*0.84
-        v = [[c_ventana.create_image(0,altura,image = c_ventana.maquina, tags = "p",anchor = E),0]]
-        condicion = windowWidth
-    else:
-        c_ventana.maquina = cargarImagen("maquina.png",0.5) 
-        c_ventana.vagon = cargarImagen("vagon.png",0.5)
-        velocidad = -5
-        pos = windowWidth*1.5
-        altura = windowHeight*0.56
-        v = [[c_ventana.create_image(windowWidth,altura,image = c_ventana.maquina, tags = "p",anchor = W),windowWidth]]
-        condicion2 = 0
+    c_ventana.maquina1 = cargarImagen("maquina.png",0.5) 
+    c_ventana.vagon1 = cargarImagen("vagon.png",0.5)
+    velocidad = -5
+    pos = windowWidth*1.5
+    altura = windowHeight*0.56
+    v = [[c_ventana.create_image(windowWidth,altura,image = c_ventana.maquina1, tags = "llegada",anchor = W),windowWidth]]
+    condicion2 = 0
         
     for ele in range(cantidad):
-        if enEstacion:
-            v += [[c_ventana.create_image(pos,altura,image = c_ventana.vagon, tags = "p",anchor = E),pos]]
-            pos -= windowWidth*0.5
-            condicion2 = pos
-            aumento = 1
-        else: 
-            v += [[c_ventana.create_image(pos,altura,image = c_ventana.vagon, tags = "p",anchor = W),pos]]
-            pos += windowWidth*0.5
-            condicion = pos
-            aumento = -1
+        v += [[c_ventana.create_image(pos,altura,image = c_ventana.vagon1, tags = "llegada",anchor = W),pos]]
+        pos += windowWidth*0.5
+        condicion = pos
+        aumento = -1
     
     tren.fadeout(2000)
     while condicion > condicion2:
-        c_ventana.move("p",velocidad,0)
+        c_ventana.move("llegada",velocidad,0)
+        condicion -= abs(velocidad)
+        time.sleep(0.001)
+        velocidad -= aumento*(1/100)
+        if int(velocidad)  == 0:
+            time.sleep(1)
+            tren.play()
+            tren.fadeout((cantidad+1)*1800)
+            aumento = -aumento
+        elif abs(velocidad) > 5:
+            aumento = 0
+    
+    for ele in v:
+        c_ventana.delete(ele[0])
+        
+    return None
+
+#Funcion: animacion_salida
+#Entradas: cantidad de vagones
+#salidas: lleva a cabbo la animacion de llegada de los trenes
+#Restricciones: cantidad entera
+def animacion_salida(cantidad):
+    if cantidad == 0:
+        return None
+
+    tren = cargarSonido("tren.wav")
+    tren.play()    
+
+    c_ventana.maquina = cargarImagen("maquina.png",0.5,True) 
+    c_ventana.vagon = cargarImagen("vagon.png",0.5,True)
+    velocidad = 5
+    pos = -windowWidth*0.5
+    altura = windowHeight*0.84
+    v = [[c_ventana.create_image(0,altura,image = c_ventana.maquina, tags = "salida",anchor = E),0]]
+    condicion = windowWidth
+
+    for ele in range(cantidad):
+        v += [[c_ventana.create_image(pos,altura,image = c_ventana.vagon, tags = "salida",anchor = E),pos]]
+        pos -= windowWidth*0.5
+        condicion2 = pos
+        aumento = 1
+
+    tren.fadeout(2000)
+    while condicion > condicion2:
+        c_ventana.move("salida",velocidad,0)
         condicion -= abs(velocidad)
         time.sleep(0.001)
         velocidad -= aumento*(1/100)
@@ -734,7 +765,7 @@ def refresh ():
         tren_menu.set(objeto)
 
     for train in trains:
-        if train.get_hora()[0] == datetime.datetime.now().hour and train.get_hora()[1] >= datetime.datetime.now().minute and train.enEstacion:
+        if train.enEstacion and train.get_hora()[0] + 1 <= datetime.datetime.now().hour and train.get_hora()[0] >= datetime.datetime.now().hour - 1:#or train.get_hora()[0] == datetime.datetime.now().hour -1) and train.enEstacion:
             menu["menu"].add_command(label=train, command=lambda tren = train: seleccion(tren))
 
 """__________________________________________________________________________"""
@@ -748,19 +779,19 @@ def timer():
         hora = datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second
         trains_copy = trains[:]
         for tren in trains_copy:
-            if tren.enEstacion == True and (hora[0] > tren.hora[0] or (hora[0] == tren.hora[0] and hora[1] > tren.hora[1])): #Elimina los trenes que ya pasaron
+            if tren.enEstacion == True and (hora[0] > tren.hora[0] + 1 ): #Elimina los trenes que ya pasaron
                 trains.remove(tren)
 
             elif tren.enEstacion == False and hora[:2] == tren.hora and hora[2] == 0: #Llega los trenes
                 tren.llegar()
-                animacion_tren(tren.carga,False)
+                animacion_llegada(tren.carga)
                 
         time.sleep(1)
 """__________________________________________________________________________"""
 
 def salir_tren(cant):
     tren.salir()
-    animacion_salir = Thread(target= animacion_tren,args = (cant,True))
+    animacion_salir = Thread(target= animacion_salida,args = (cant,))
     animacion_salir.start()
 
 

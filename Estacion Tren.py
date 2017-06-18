@@ -582,7 +582,6 @@ def armar_loop():
                     print("Vagones asignados, deberia mostrar el tren")
                     c_armar.destroy()
                     salir_tren(tren.carga)
-                    refresh()
                     ventana.deiconify()
                     tren = None
                 else:
@@ -787,12 +786,17 @@ def timer():
         time.sleep(1)
 
 def salir_tren(cant, optimizar=False):
+    global tren
+    if tren == None:
+        return None
     if optimizar:
         tren.optimizar(tren.demanda)
         cant = tren.carga
     tren.salir()
     animacion_salir = Thread(target= animacion_salida,args = (cant,))
     animacion_salir.start()
+    refresh()
+    tren = None
 
 #Funcion: cerrar
 #Entrada: ninguna

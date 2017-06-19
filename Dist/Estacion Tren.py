@@ -235,7 +235,7 @@ class Tren:
         if pos < 0 or pos > self.carga -1:
             print("Índice fuera de rango")
 
-        elif self.maquina != None and self.carga != self.maquina.capacidad and self.carga > 0 :
+        elif self.maquina != None and self.carga > 0 :
             if pos == 0:
                 temp = self.head
                 self.capacidad -= self.head.capacidad
@@ -586,7 +586,6 @@ def armar_loop():
             # Restricciones: ninguna
             def salirArmar():
                 tren.quitarTodos()
-                tren.mostrar()
                 c_armar.destroy()
                 armar1()
 
@@ -608,6 +607,8 @@ def armar_loop():
             #Salida: engancha el vagon al inicio y refresca la ventana
             #Restricciones: ninguna
             def engancharInicio(id):
+                if tren.maquina.capacidad == tren.carga:
+                    messagebox.showwarning("Capacidad máxima alcanzada", "La capacidad máxima de la máquina utilizada ha sido alcanzada. Puede quitar algún vagón o cambiar la máquina por una de más capacidad.")
                 tren.engancharInicio(id)
                 c_armar.destroy()
                 armar2()
@@ -617,6 +618,8 @@ def armar_loop():
             #Salida: engancha el vagon en la posicion pos y refresca la ventana
             #Restricciones: pos debe ser un entero
             def engancharMedio(id, pos):
+                if tren.maquina.capacidad == tren.carga:
+                    messagebox.showwarning("Capacidad máxima alcanzada", "La capacidad máxima de la máquina utilizada ha sido alcanzada. Puede quitar algún vagón o cambiar la máquina por una de más capacidad.")
                 if pos != "-":
                     tren.engancharMedio(id, int(pos))
                     c_armar.destroy()
@@ -627,6 +630,8 @@ def armar_loop():
             #Salida: engancha el vagon al final y refresca la ventana
             #Restricciones: ninguna
             def engancharFinal(id):
+                if tren.maquina.capacidad == tren.carga:
+                    messagebox.showwarning("Capacidad máxima alcanzada", "La capacidad máxima de la máquina utilizada ha sido alcanzada. Puede quitar algún vagón o cambiar la máquina por una de más capacidad.")
                 tren.engancharFinal(id)
                 c_armar.destroy()
                 armar2()

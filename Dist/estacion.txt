@@ -1,13 +1,12 @@
-﻿[Vagon(id = 100, capacidad = 20), Vagon(id = 101, capacidad = 15), Vagon(id = 102, capacidad = 10), Vagon(id = 103, capacidad = 30),Vagon(id= 104,capacidad = 30)] #VagonesLibres
-[Maquina(id=10, capacidad = 5), Maquina(id=11, capacidad = 3),Maquina(id=12, capacidad = 4)] #MaquinasLibres
-[Vagon(id = 150, capacidad = 20), Vagon(id = 151, capacidad = 15), Vagon(id = 152, capacidad = 10), Vagon(id = 153, capacidad = 30), Vagon(id = 154, capacidad = 20), Vagon(id = 155, capacidad = 15), Vagon(id = 156, capacidad = 10), Vagon(id = 157, capacidad = 30)] #VagonesLibres
+﻿[Vagon(id = 100, capacidad = 20),Vagon(id = 101, capacidad = 20), Vagon(id = 102, capacidad = 15),Vagon(id = 103, capacidad = 15), Vagon(id = 104, capacidad = 10), Vagon(id = 105, capacidad = 10), Vagon(id = 106, capacidad = 30),Vagon(id= 107,capacidad = 30)] #VagonesLibres
+[Maquina(id=10, capacidad = 2), Maquina(id=11, capacidad = 3),Maquina(id=12, capacidad = 4),Maquina(id=13, capacidad = 4),Maquina(id=14, capacidad = 3),Maquina(id=15, capacidad = 2),Maquina(id=16, capacidad = 1)] #MaquinasLibres
+[Vagon(id = 150, capacidad = 20), Vagon(id = 151, capacidad = 15), Vagon(id = 152, capacidad = 10), Vagon(id = 153, capacidad = 30), Vagon(id = 154, capacidad = 20), Vagon(id = 155, capacidad = 15), Vagon(id = 156, capacidad = 10), Vagon(id = 157, capacidad = 30),Vagon(id = 158, capacidad = 20), Vagon(id = 159, capacidad = 15), Vagon(id = 160, capacidad = 10), Vagon(id = 161, capacidad = 30), Vagon(id = 162, capacidad = 20), Vagon(id = 163, capacidad = 15), Vagon(id = 164, capacidad = 10), Vagon(id = 165, capacidad = 30)] #VagonesLibres
 [Maquina(id=20, capacidad = 6), Maquina(id=21, capacidad = 3), Maquina(id=22, capacidad = 4), Maquina(id=23, capacidad = 5), Maquina(id=24, capacidad = 6), Maquina(id=25, capacidad = 6), Maquina(id=26, capacidad = 3), Maquina(id=27, capacidad = 4), Maquina(id=28, capacidad = 5), Maquina(id=29, capacidad = 6)] #MaquinasLibres
 Ruta TEC-Alajuela
 04:35
 07:00
 11:30
-15:00
-02:10
+23:00
 Ruta Alajuela-TEC
 04:31
 09:00
@@ -23,10 +22,14 @@ Ruta TEC-Cartago
 03:50
 08:30
 12:00
-13:25
+23:25
 Ruta TEC-San Jose
 07:15
 15:45
 16:45
 18:20
-22:00
+Ruta San Jose-TEC
+09:15
+11:40
+15:20
+18:50

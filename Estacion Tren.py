@@ -126,6 +126,7 @@ class Tren:
                     listaMaquinas.append(self.maquina)
                 self.maquina = maquina
                 listaMaquinas.remove(maquina)
+                break
             elif maquina == maquinasLibres[-1]:
                 print("Máquina no encontrada")
 

@@ -3,6 +3,7 @@
 # Jasson Rodriguez
 # Marco Herrera
 
+#Importar librerias
 import sys
 import os
 from tkinter import *
@@ -14,6 +15,7 @@ import time
 import datetime
 from PIL import Image, ImageTk
 
+#Inicializa el mixer de pygame
 pygame.mixer.init()
 
 #Funcion: cargarImagen
@@ -39,16 +41,12 @@ def cargarSonido(nombre):
     sonido = pygame.mixer.Sound(ruta)
     return sonido
 
-#Funcion: scale_img
-#Entradas: imagen, ancho y altura
-#Salida: imagen reescalada
-#Restricciones: imagen de tipo pygame, ancho y altura son enteros
-def scale_img(image,width,height):
-    image = pygame.transform.smoothscale(image,(width,height))
-    return PhotoImage(image)
-
-
+#Clase tren
 class Tren:
+    #Metodo: init
+    #Entrada: id, ruta y hora
+    #Salida: asigna al objeto los atributos id, ruta, hora, demanda random, maquina, punteros, carga y capacidad
+    #Restricciones: ninguna
     def __init__(self, id, ruta, hora):
         self.id = id
         self.ruta = ruta
@@ -64,6 +62,10 @@ class Tren:
         else:
             self.enEstacion = False
 
+    #Metodo: str
+    #Entrada: ninguna
+    #Salida: retorna un str con la ruta y hora del tren
+    #Restricciones: ninguna
     def __str__(self):
         if self.hora[1] < 10:
             minutos = "0" + str(self.hora[1])
@@ -71,6 +73,10 @@ class Tren:
             minutos = str(self.hora[1])
         return str(self.ruta) + " - " + str(self.hora[0]) + ":" + minutos
 
+    #Metodo: get_hora
+    #Entrada: ninguna
+    #Salida: retorna el atributo hora
+    #Restricciones: ninguna
     def get_hora(self):
         return self.hora
 
@@ -264,7 +270,6 @@ class Tren:
                         cont += 1
             vagonesLibres.append(temp)
             self.carga -= 1
-            
 
         elif self.maquina == None:
             print("No hay máquina asignada")
@@ -272,6 +277,7 @@ class Tren:
             print("No hay vagones asignados")
         else:
             print("Capacidad de la máquina alcanzada")
+
     #Metodo: quitarTodos
     #Entrada: ninguna
     #Salida: elimina todos los vagones y maquinas del tren
@@ -326,27 +332,46 @@ class Tren:
                 temp.mostrar()
                 temp = temp.next
 
+#Clase Maquina
 class Maquina:
+    #Metodo: init
+    #Entrada: id y capacidad
+    #Salida: asigna los atributos id y capacidad
+    #Restricciones: ninguna
     def __init__(self, id, capacidad):
         self.id = id
         self.capacidad = capacidad
 
+    # Metodo: mostrar
+    # Entrada: ninguna
+    # Salida: muestra los atributos de la maquina
+    # Restricciones: ninguna
     def mostrar(self):
         print("ID: ", self.id, " Capacidad: ", self.capacidad)
 
+#Clase vagon
 class Vagon:
+    #Metodo: init
+    #Entrada: id y capacidad
+    #Salida: asigna los atributos id y capacidad
+    #Restricciones: ninguna
     def __init__(self, id, capacidad):
         self.id = id
         self.capacidad = capacidad
         self.prev = None
         self.next = None
 
+    # Metodo: mostrar
+    # Entrada: ninguna
+    # Salida: muestra los atributos del vagon
+    # Restricciones: ninguna
     def mostrar(self):
         print("ID: ", self.id, " Capacidad: ", self.capacidad)
 
-trains = []
-newTrainID = 0
-enEjecucion = True
+#Declara variables globales
+trains = [] #Lista de trenes totales
+newTrainID = 0 #ID a usar para cada tren creado
+enEjecucion = True #Estado del programa
 
 #Lectura de archivo de configuracion
 with open("estacion.txt",encoding='utf-8-sig') as config:
@@ -354,7 +379,7 @@ with open("estacion.txt",encoding='utf-8-sig') as config:
     maquinasLibres = eval(config.readline())
     vagonesFuera = eval(config.readline())
     maquinasFuera = eval(config.readline())
-    for line in config:
+    for line in config: #Crea un tren para cada ruta del dia
         if line.find("Ruta") != -1:
             ruta = line.replace("Ruta ", "").replace("\n", "")
         else:
@@ -362,6 +387,7 @@ with open("estacion.txt",encoding='utf-8-sig') as config:
             trains.append(Tren(id=newTrainID, ruta=ruta, hora = hora))
             newTrainID += 1
 
+#Copia de los trenes de todo el dia
 trenesDia = trains[:]
 
 #Funcion: mostrar
@@ -416,22 +442,21 @@ def rutas_loop():
     fondo = cargarImagen("fondo.png",1)
     c_rutas.create_image(0,0,image = fondo,anchor = NW)
 
-    #Funcion de volver
+    #Funcion: salirRutas
+    #Entrada: ninguna
+    #Salida: destruye la ventana y maximiza la ventana principal
+    #Restricciones: ninguna
     def salirRutas():
         rutas.destroy()
         ventana.deiconify()
         ventana.focus_force()
 
-    # Boton volver
+    # Boton volver: ejecuta salirRutas
     backButton = cargarImagen("back button.png", 0.1)
     botonVolver = Button(c_rutas, image=backButton, command=salirRutas, bg="#313139", relief=FLAT)
     botonVolver.place(relx=0.05, rely=0.05)
 
-
-    #Titulo
-#    c_rutas.create_text(windowWidth//2,windowHeight//10,text = "Rutas de hoy", font = (font, 40),anchor = CENTER, fill="#FFFFFF")
-
-    #Horarios
+    #Horarios: crea la lista de horarios para cada ruta
     textos = []
     ultimaRuta = trenesDia[0].ruta.replace("\n", "")
     textos.append(ultimaRuta)
@@ -457,6 +482,7 @@ def rutas_loop():
     #Titulo de la pantalla
     c_rutas.create_text(windowWidth // 2, posicionTextos/2 , text="RUTAS DE HOY", font=(font, int(aumento/2), "bold"), fill="#000000")
 
+    #Imprime los horarios
     for texto in textos:
         c_rutas.create_text(windowWidth // 2, posicionTextos, text=texto, font=(font, int(aumento/3)), anchor=N, fill="#000000")
         posicionTextos += aumento
@@ -470,6 +496,7 @@ def rutas_loop():
 #Salida: crea una ventana para modificar el tren
 #Restricciones: ninguna
 def armar_loop():
+    #Verifica que haya un tren seleccionado
     if tren == None:
         messagebox.showerror("Tren no seleccionado", "No se ha seleccionado un tren para modificar")
     else:
@@ -479,7 +506,11 @@ def armar_loop():
         armar = Toplevel()
         armar.overrideredirect(True)
         armar.geometry("%dx%d+0+0" %(windowWidth,windowHeight))
-        
+
+        #Funcion: armar1
+        #Entrada: ninguna
+        #Salida: carga en la ventana la lista de maquinas y los botones de asignar
+        #Restricciones: ninguna
         def armar1():
             c_armar = Canvas(armar)
             c_armar.pack(fill=BOTH, expand=True)
@@ -488,7 +519,10 @@ def armar_loop():
             fondo = cargarImagen("fondo.png",1)
             c_armar.create_image(0,0,image = fondo,anchor = NW)
 
-            #Funcion de volver
+            # Funcion: salirArmar
+            # Entrada: ninguna
+            # Salida: destruye la ventana y maximiza la ventana principal
+            # Restricciones: ninguna
             def salirArmar():
                 armar.destroy()
                 ventana.deiconify()
@@ -499,7 +533,10 @@ def armar_loop():
             botonVolver = Button(c_armar, image=backButton, command=salirArmar, bg="#313139", relief=FLAT)
             botonVolver.place(relx=0.05, rely=0.05)
 
-            #Botones asignar
+            #Funcion: asignar
+            #Entrada: id de la maquina
+            #Salida: asigna esa maquina al tren y pasa a la ventana de vagones
+            #Restricciones: ninguna
             def asignar(id):
                 tren.asignarMaquina(id)
                 c_armar.destroy()
@@ -508,6 +545,7 @@ def armar_loop():
             #Titulo de la pantalla
             c_armar.create_text(windowWidth // 2, 70 , text="Asignación de máquina", font=(font, int((windowHeight - 140)/20), "bold"), fill="#000000")
 
+            #Label de demanda
             demanda = "Demanda: " + str(tren.demanda)
             c_armar.create_text(windowWidth * 0.85, 70 , text=demanda, font=(font, int(windowHeight // 30)), fill="#000000")
 
@@ -523,7 +561,7 @@ def armar_loop():
                 c_armar.create_text(windowWidth * 42 // 100, pos, text=datos, font=(font, windowHeight // 30), fill="#000000", anchor=CENTER)
                 boton = (Button(c_armar, image = botonAsignar, command=lambda maquina=maquina: asignar(maquina.id), bg="#313139", relief=FLAT)) #El comando debe llevar maquina=maquina para evitar que maquina se asigne luego de que haya terminado el ciclo
                 boton.place(x=windowWidth * 67 // 96, y=pos, anchor=W)
-                pos += aumento #(windowHeight - 140) // len(maquinasLibres)
+                pos += aumento
                 if pos > windowHeight:
                     break
                 
@@ -531,6 +569,10 @@ def armar_loop():
             armar.bind("<Escape>", cerrar)
             armar.mainloop()
 
+        #Funcion: armar2
+        #Entrada: ninguna
+        #Salida: carga en la ventana la lista de vagones y los botones de asignar
+        #Restricciones: ninguna
         def armar2():
             c_armar = Canvas(armar)
             c_armar.pack(fill=BOTH, expand=True)
@@ -539,7 +581,10 @@ def armar_loop():
             fondo = cargarImagen("fondo.png", 1)
             c_armar.create_image(0, 0, image=fondo, anchor=NW)
 
-            # Funcion de volver
+            # Funcion: salirArmar
+            # Entrada: ninguna
+            # Salida: destruye la pantalla y vuelve a la pantalla de maquinas
+            # Restricciones: ninguna
             def salirArmar():
                 tren.quitarTodos()
                 tren.mostrar()
@@ -559,28 +604,50 @@ def armar_loop():
             botonSalir = cargarImagen("boton salir.png", 0.13)
 
             # Botones asignar
+            #Funcion: engancharInicio
+            #Entrada: id
+            #Salida: engancha el vagon al inicio y refresca la ventana
+            #Restricciones: ninguna
             def engancharInicio(id):
                 tren.engancharInicio(id)
                 c_armar.destroy()
                 armar2()
+
+            #Funcion: engancharMedio
+            #Entrada: id y pos
+            #Salida: engancha el vagon en la posicion pos y refresca la ventana
+            #Restricciones: pos debe ser un entero
             def engancharMedio(id, pos):
                 if pos != "-":
                     tren.engancharMedio(id, int(pos))
                     c_armar.destroy()
                     armar2()
+
+            #Funcion: engancharFinal
+            #Entrada: id
+            #Salida: engancha el vagon al final y refresca la ventana
+            #Restricciones: ninguna
             def engancharFinal(id):
                 tren.engancharFinal(id)
                 c_armar.destroy()
                 armar2()
+
+            #Funcion: quitarVagon
+            #Entrada: id
+            #Salida: quita el vagon y refresca la ventana
+            #Restricciones: ninguna
             def quitarVagon(pos):
                 tren.quitarVagon(pos)
                 c_armar.destroy()
                 armar2()
 
+            #Funcion: asignar
+            #Entrada: ninguna
+            #Salida: destruye la ventana, maximiza la ventana principal y ejecuta la salida del tren
+            #Restricciones: ninguna
             def asignar():
                 global tren
                 if tren.demanda <= tren.capacidad:
-                    print("Vagones asignados, deberia mostrar el tren")
                     c_armar.destroy()
                     salir_tren(tren.carga)
                     ventana.deiconify()
@@ -590,7 +657,7 @@ def armar_loop():
                     messagebox.showwarning("Capacidad insuficiente", "Faltan " + str(restante) + " asientos para suplir la demanda")
  
 
-            # Titulo de la pantalla
+            # Titulo de la pantalla y label de vagones
             c_armar.create_text(windowWidth // 2, 70, text="Asignación de vagones", font=(font, int((windowHeight - 140) / 20), "bold"), fill="#000000")
             demanda = "Demanda: " + str(tren.demanda)
             c_armar.create_text(windowWidth * 0.85, 70 , text=demanda, font=(font, int(windowHeight // 30)), fill="#000000")
@@ -607,7 +674,7 @@ def armar_loop():
             boton_salir = Button(c_armar, image=botonSalir, command=asignar, bg="#313139", relief=FLAT)
             boton_salir.place(relx=0.9, y= windowHeight - 100, anchor=CENTER)
             
-            #Quitar vagones
+            #Crea la lista de vagones asignados y el boton de quitar
             if tren.head != None:
                 temp = tren.head
                 cont = 0
@@ -620,7 +687,7 @@ def armar_loop():
                     cont += 1
                     temp = temp.next
 
-            #Seleccionar vagones nuevos
+            #Crea la lista para seleccionar vagones nuevos
             for vagon in vagonesLibres:
                 datos = "ID: " + str(vagon.id) + "  Capacidad: " + str(vagon.capacidad) + " personas"
 
@@ -643,6 +710,7 @@ def armar_loop():
                 pos += aumento
                 if pos > windowHeight - 200:
                     break
+
             armar.focus_force()
             armar.bind("<Escape>", cerrar)
             armar.mainloop()
@@ -670,6 +738,7 @@ def animacion_llegada(cantidad):
     tren = cargarSonido("tren.wav")
     tren.play()
 
+    #Cargar imagenes y definir variables
     c_ventana.maquina1 = cargarImagen("maquina.png",0.5) 
     c_ventana.vagon1 = cargarImagen("vagon.png",0.5)
     velocidad = -5
@@ -786,6 +855,10 @@ def timer():
                 
         time.sleep(1)
 
+#Funcion: timer
+#Entrada: cant y optimizar
+#Salida: muestra la animacion de un tren con la cantidad dada de vagones, si optimizar es True entonces lo optimiza y asigna la cantidad
+#Restricciones: optimizar es un booleano y cant un entero
 def salir_tren(cant, optimizar=False):
     global tren
     if tren == None:
